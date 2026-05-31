@@ -1,0 +1,20 @@
+# Gradle
+.gradle/
+build/
+
+# IntelliJ
+*.iml
+.idea/
+out/
+
+# Logs / runtime / crash reports
+run/
+*.log
+*.txt
+*.dat
+*.json
+*.jar
+
+# OS
+.DS_Store
+Thumbs.db
