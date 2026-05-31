@@ -2,5 +2,5 @@ package com.feb.mod
 
 object ModInfo {
     val MOD_NAME = "FebMod"
-    var VERSION = "v0.1.0"
+    var VERSION = "v0.1.1"
 }
