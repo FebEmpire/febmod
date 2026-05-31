@@ -12,7 +12,6 @@ run/
 *.log
 *.txt
 *.dat
-*.json
 *.jar
 
 # OS
