@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import com.feb.mod.ModInfo
+import com.feb.mod.manager.ConfigManager
 import com.feb.mod.ui.gui.theme.GuiTheme
 import com.feb.mod.ui.gui.theme.GuiThemes
 
@@ -51,6 +52,8 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
 
     override fun init() {
         super.init()
+        activeTheme = ConfigManager.current.theme
+            .let { runCatching { ParticleManager.Style.valueOf(it) }.getOrDefault(ParticleManager.Style.WINTER) }
         currentGuiTheme = GuiThemes.fromStyle(activeTheme)
         activeGuiTheme = currentGuiTheme
         particles.initialize(width, height, activeTheme)
@@ -64,6 +67,8 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
         currentGuiTheme = GuiThemes.fromStyle(style)
         activeGuiTheme = currentGuiTheme
         particles.setStyle(style, width, height)
+        ConfigManager.current.theme = style.name
+        ConfigManager.save()
     }
 
     private fun buildTopNav() {
