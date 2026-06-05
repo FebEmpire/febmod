@@ -1,5 +1,6 @@
 package com.feb.mod
 
+import com.feb.mod.discord.DiscordRPC
 import com.feb.mod.manager.AddonManager
 import com.feb.mod.manager.CommandManager
 import com.feb.mod.utils.ChatUtils
@@ -13,6 +14,7 @@ object Febmod : ModInitializer {
         logger.info("Initializing FebMod")
         logger.info("Thank you for using FebMod")
         logger.info("You are goated")
+        DiscordRPC.onInitialize()
         CommandManager.registerAll()
         AddonManager.loadAddons()
         logger.info("Loaded ${AddonManager.getAddons().size} addon(s)")

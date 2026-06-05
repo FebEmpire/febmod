@@ -1,5 +1,6 @@
 package com.feb.mod.ui.gui.tabs
 
+import com.feb.mod.discord.DiscordRPC
 import com.feb.mod.ui.gui.FebModGui
 import com.feb.mod.ui.gui.components.FebButton
 import com.feb.mod.ui.gui.particles.ParticleManager
@@ -58,6 +59,23 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
         val startY = FebModGui.TOP_BAR_HEIGHT + 50
 
         when (section) {
+            "General" -> {
+                val rpcBtn = FebButton(
+                    contentX,
+                    startY,
+                    160,
+                    20,
+                    Component.literal(if (DiscordRPC.isEnabled) "Discord RPC: ON" else "Discord RPC: OFF"),
+                    parent.font
+                ) {
+                    DiscordRPC.toggle()
+                    clearContent()
+                    loadSection("General")
+                }
+                rpcBtn.selected = DiscordRPC.isEnabled
+                contentButtons.add(rpcBtn)
+                addWidget(rpcBtn)
+            }
             "Themes" -> {
                 themes.forEachIndexed { index, style ->
                     val label = style.name.lowercase().replaceFirstChar { it.uppercase() }
@@ -89,7 +107,7 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
 
         when (selectedSection) {
             "General" -> {
-                graphics.text(parent.font, "Maybe discord rpc in the future or sum idk", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
+                graphics.text(parent.font, "General stuff fr", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
             }
             "Themes" -> {
                 graphics.text(parent.font, "Pick a theme", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
