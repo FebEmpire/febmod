@@ -26,7 +26,7 @@ object DotCommands {
         val sub = args.getOrNull(1)?.lowercase()
 
         when {
-            cmd in listOf("f", "feb", "febmod") && sub == "addon" -> {
+            cmd in listOf("f", "feb", "febmod") && sub in listOf("addon", "addons") -> {
                 val mc = net.minecraft.client.Minecraft.getInstance()
                 mc.execute { mc.setScreen(FebModGui(FebModGui.TopTab.ADDONS)) }
             }

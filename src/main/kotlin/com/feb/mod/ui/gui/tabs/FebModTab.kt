@@ -2,16 +2,22 @@ package com.feb.mod.ui.gui.tabs
 
 import com.feb.mod.ui.gui.FebModGui
 import com.feb.mod.ui.gui.components.FebButton
+import com.feb.mod.ui.gui.particles.ParticleManager
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.network.chat.Component
 
 class FebModTab(parent: FebModGui) : BaseTab(parent) {
-
     private val sidebarButtons = mutableListOf<FebButton>()
     private val contentButtons = mutableListOf<FebButton>()
     private var selectedSection = "General"
-
     private val sections = listOf("General", "Themes", "About")
+
+    private val themes = listOf(
+        ParticleManager.Style.WINTER,
+        ParticleManager.Style.SPRING,
+        ParticleManager.Style.SUMMER,
+        ParticleManager.Style.AUTUMN
+    )
 
     override fun init() {
         buildSidebar()
@@ -21,7 +27,6 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
     private fun buildSidebar() {
         sidebarButtons.forEach { removeWidget(it) }
         sidebarButtons.clear()
-
         sections.forEachIndexed { index, name ->
             val btn = FebButton(
                 10,
@@ -50,14 +55,28 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
 
     private fun loadSection(section: String) {
         val contentX = FebModGui.CONTENT_X_FEBMOD + 10
-        val startY = FebModGui.TOP_BAR_HEIGHT + 30
+        val startY = FebModGui.TOP_BAR_HEIGHT + 50
 
         when (section) {
-            "General" -> {
-            }
             "Themes" -> {
-            }
-            "About" -> {
+                themes.forEachIndexed { index, style ->
+                    val label = style.name.lowercase().replaceFirstChar { it.uppercase() }
+                    val btn = FebButton(
+                        contentX,
+                        startY + index * 26,
+                        100,
+                        20,
+                        Component.literal(label),
+                        parent.font
+                    ) {
+                        parent.applyTheme(style)
+                        contentButtons.forEach { it.selected = false }
+                        contentButtons.getOrNull(index)?.selected = true
+                    }
+                    btn.selected = style == parent.activeTheme
+                    contentButtons.add(btn)
+                    addWidget(btn)
+                }
             }
         }
     }
@@ -73,7 +92,7 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
                 graphics.text(parent.font, "Maybe discord rpc in the future or sum idk", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
             }
             "Themes" -> {
-                graphics.text(parent.font, "I'll make this in the near future cuz it's a tuff idea", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
+                graphics.text(parent.font, "Pick a theme", contentX, startY + 20, 0x80FFFFFF.toInt(), false)
             }
             "About" -> {
                 graphics.text(parent.font, "FebMod by THE Februari10", contentX, startY + 20, 0xFFFFFFFF.toInt(), false)

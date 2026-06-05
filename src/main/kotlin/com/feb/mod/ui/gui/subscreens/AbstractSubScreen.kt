@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component
 
 abstract class AbstractSubScreen(protected val parent: FebModGui) {
 
+    protected open val contentX: Int get() = FebModGui.CONTENT_X_FEBMOD
     protected val widgets = mutableListOf<AbstractWidget>()
     private var backButton: FebButton? = null
     private var currentY = FebModGui.TOP_BAR_HEIGHT + 44
@@ -34,7 +35,7 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         graphics.text(
             parent.font,
             Component.literal(getTitle()),
-            FebModGui.CONTENT_X_FEBMOD + 10,
+            contentX + 10,
             FebModGui.TOP_BAR_HEIGHT + 10,
             0xFF55FFFF.toInt(),
             true
@@ -44,7 +45,7 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
 
     private fun createBackButton() {
         backButton = FebButton(
-            FebModGui.CONTENT_X_FEBMOD + 10,
+            contentX + 10,
             parent.height - 40,
             80,
             24,
@@ -86,7 +87,7 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
     ): Pair<FebButton, FebButton> {
         val buttonWidth = 80
         val buttonHeight = 20
-        val buttonX = FebModGui.CONTENT_X_FEBMOD + 10
+        val buttonX = contentX + 10
         var enableButton: FebButton? = null
         var disableButton: FebButton? = null
 
@@ -116,7 +117,7 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
     ): List<FebButton> {
         val buttonWidth = 80
         val buttonHeight = 20
-        val buttonX = FebModGui.CONTENT_X_FEBMOD + 10
+        val buttonX = contentX + 10
         val buttons = mutableListOf<FebButton>()
 
         options.forEachIndexed { index, label ->
@@ -143,14 +144,13 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         enableButton.selected = isEnabled
         disableButton.selected = !isEnabled
     }
-
     // Line 147 is tuff :pray:
 
     protected fun renderSubtitle(graphics: GuiGraphicsExtractor, subtitle: String, yOffset: Int) {
         graphics.text(
             parent.font,
             Component.literal(subtitle),
-            FebModGui.CONTENT_X_FEBMOD + 10,
+            contentX + 10,
             yOffset,
             0xFFFFFFFF.toInt(),
             false
