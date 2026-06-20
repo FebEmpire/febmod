@@ -34,6 +34,9 @@ object DotCommands {
                 val mc = net.minecraft.client.Minecraft.getInstance()
                 mc.execute { mc.setScreen(FebModGui()) }
             }
+            cmd in listOf("ping") -> {
+                PingCommand.report()
+            }
             else -> handlers[cmd]?.invoke(args.drop(1))
         }
     }
