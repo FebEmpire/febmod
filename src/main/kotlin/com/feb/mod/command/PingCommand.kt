@@ -13,6 +13,6 @@ object PingCommand {
             ?.getPlayerInfo(player.uuid)
             ?.latency ?: -1
 
-        ChatUtils.modMessage("Your ping is {$ping}ms")
+        ChatUtils.modMessage("Your ping is " + ping + "ms")
     }
 }
