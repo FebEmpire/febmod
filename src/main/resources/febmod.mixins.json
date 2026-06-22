@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "ExampleMixin",
-    "WindowTitleMixin"
+    "WindowTitleMixin",
+    "ChatRestrictionBypassMixin"
   ],
   "injectors": {
     "defaultRequire": 1
