@@ -2,7 +2,7 @@ package com.feb.mod.mixin;
 
 /*
 * I cba to make this rn
-* Coming in 0.1.2 fr
+* Coming in 0.1.2 fr (Maybe 0.1.3)
 * +rep @februari10
  */
 
