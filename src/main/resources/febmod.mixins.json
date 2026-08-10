@@ -5,7 +5,8 @@
   "mixins": [
     "ExampleMixin",
     "WindowTitleMixin",
-    "ChatRestrictionBypassMixin"
+    "ChatRestrictionBypassMixin",
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
