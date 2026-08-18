@@ -15,4 +15,4 @@ pluginManagement {
 	}
 }
 
-rootProject.name = "YourModName"
+rootProject.name = "febmod"
