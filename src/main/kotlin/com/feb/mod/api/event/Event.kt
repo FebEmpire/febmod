@@ -1,4 +1,4 @@
-package com.feb.mod.event
+package com.feb.mod.api.event
 
 abstract class Event {
     enum class Priority { HIGHEST, HIGH, MEDIUM, LOW, LOWEST }

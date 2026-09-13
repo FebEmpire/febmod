@@ -1,7 +1,7 @@
 package com.feb.mod.command
 
 import net.minecraft.client.Minecraft
-import com.feb.mod.utils.ChatUtils
+import com.feb.mod.api.chat.ModMessage
 
 object PingCommand {
 
@@ -13,6 +13,6 @@ object PingCommand {
             ?.getPlayerInfo(player.uuid)
             ?.latency ?: -1
 
-        ChatUtils.modMessage("Your ping is " + ping + "ms")
+        ModMessage.send("Your ping is " + ping + "ms")
     }
 }

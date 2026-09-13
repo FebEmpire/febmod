@@ -1,4 +1,4 @@
-package com.feb.mod.event
+package com.feb.mod.api.event
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

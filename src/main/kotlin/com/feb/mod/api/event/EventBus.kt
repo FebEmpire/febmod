@@ -1,4 +1,4 @@
-package com.feb.mod.event
+package com.feb.mod.api.event
 
 import java.lang.invoke.MethodHandles
 import java.util.concurrent.ConcurrentHashMap
