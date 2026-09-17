@@ -9,7 +9,7 @@ object AddonConfigManager {
 
     private fun fileFor(addonId: String): File {
         val safeId = addonId.replace(Regex("[^a-zA-Z0-9_-]"), "_")
-        val dir = File(FabricLoader.getInstance().configDir.toFile(), "febmod/addons/$safeId")
+        val dir = File(FabricLoader.getInstance().gameDir.toFile(), "febmod/addons/$safeId")
         if (!dir.exists()) dir.mkdirs()
         return File(dir, "config.json")
     }

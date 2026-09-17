@@ -6,13 +6,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.network.chat.Component
 
-/*
-* Will be used in the future type shi
-* Yo what is up youtube
-* I made this for like the future yk
-* +rep @februari10
-*/
-
 abstract class AbstractSubScreen(protected val parent: FebModGui) {
 
     protected open val contentX: Int get() = FebModGui.CONTENT_X_FEBMOD
@@ -144,7 +137,6 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         enableButton.selected = isEnabled
         disableButton.selected = !isEnabled
     }
-    // Line 147 is tuff :pray:
 
     protected fun renderSubtitle(graphics: GuiGraphicsExtractor, subtitle: String, yOffset: Int) {
         graphics.text(

@@ -115,7 +115,6 @@ class FebModTab(parent: FebModGui) : BaseTab(parent) {
             "About" -> {
                 graphics.text(parent.font, "FebMod by THE Februari10", contentX, startY + 20, 0xFFFFFFFF.toInt(), false)
                 graphics.text(parent.font, "Pretty goated mod ngl", contentX, startY + 34, 0x80FFFFFF.toInt(), false)
-                graphics.text(parent.font, "Please give me money \uD83D\uDE4F my paypal is febban2010@gmail.com", contentX, startY + 48, 0x80FFFFFF.toInt(), false)
                 graphics.text(parent.font, "Join the discord https://discord.gg/Q9kSukTTZT", contentX, startY + 62, 0x80FFFFFF.toInt(), false)
             }
         }

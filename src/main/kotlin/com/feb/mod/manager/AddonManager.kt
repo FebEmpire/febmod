@@ -13,7 +13,7 @@ object AddonManager {
     private val usedIds = mutableSetOf<String>()
 
     fun loadAddons() {
-        val addonsDir = FabricLoader.getInstance().configDir.resolve("febmod/addons").toFile()
+        val addonsDir = FabricLoader.getInstance().gameDir.resolve("febmod/addons").toFile()
 
         if (!addonsDir.exists()) {
             addonsDir.mkdirs()

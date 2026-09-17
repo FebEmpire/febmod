@@ -112,7 +112,6 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
 
     fun openSubScreen(subScreen: AbstractSubScreen) {
         currentSubScreen?.handleClose()
-        getCurrentTab().clear()
         closeAddonTab()
         currentSubScreen = subScreen
         currentSubScreen?.init()
