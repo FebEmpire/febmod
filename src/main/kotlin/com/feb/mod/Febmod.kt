@@ -8,6 +8,7 @@ import com.feb.mod.api.event.events.RenderFrameEvent
 import com.feb.mod.discord.DiscordRPC
 import com.feb.mod.manager.AddonManager
 import com.feb.mod.manager.FebModManager
+import com.feb.mod.ui.hud.FebModHud
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
@@ -44,6 +45,8 @@ object Febmod : ModInitializer {
 
             !event.cancelled
         }
+
+        FebModHud.register()
 
         ClientReceiveMessageEvents.GAME.register { text, overlay ->
             if (!overlay) {

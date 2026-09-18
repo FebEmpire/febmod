@@ -44,7 +44,10 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
             24,
             Component.literal("← Back"),
             parent.font
-        ) { parent.closeSubScreen() }
+        ) {
+            parent.closeSubScreen()
+        }
+
         backButton?.let { addWidget(it) }
     }
 
@@ -84,12 +87,26 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         var enableButton: FebButton? = null
         var disableButton: FebButton? = null
 
-        enableButton = FebButton(buttonX, currentY + 20, buttonWidth, buttonHeight, Component.literal("Enable"), parent.font) {
+        enableButton = FebButton(
+            buttonX,
+            currentY + 20,
+            buttonWidth,
+            buttonHeight,
+            Component.literal("Enable"),
+            parent.font
+        ) {
             onValueChange(true)
             updateToggleButtons(enableButton!!, disableButton!!, true)
         }
 
-        disableButton = FebButton(buttonX + buttonWidth + 10, currentY + 20, buttonWidth, buttonHeight, Component.literal("Disable"), parent.font) {
+        disableButton = FebButton(
+            buttonX + buttonWidth + 10,
+            currentY + 20,
+            buttonWidth,
+            buttonHeight,
+            Component.literal("Disable"),
+            parent.font
+        ) {
             onValueChange(false)
             updateToggleButtons(enableButton!!, disableButton!!, false)
         }
@@ -98,6 +115,7 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         addWidget(disableButton)
         updateToggleButtons(enableButton, disableButton, getCurrentValue())
         currentY += spacing
+
         return Pair(enableButton, disableButton)
     }
 
@@ -114,31 +132,51 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
         val buttons = mutableListOf<FebButton>()
 
         options.forEachIndexed { index, label ->
-            val button = FebButton(buttonX + index * (buttonWidth + 10), currentY + 20, buttonWidth, buttonHeight, Component.literal(label), parent.font) {
+            val button = FebButton(
+                buttonX + index * (buttonWidth + 10),
+                currentY + 20,
+                buttonWidth,
+                buttonHeight,
+                Component.literal(label),
+                parent.font
+            ) {
                 onValueChange(index)
                 updateCycleButtons(buttons, index)
             }
+
             buttons.add(button)
             addWidget(button)
         }
 
         updateCycleButtons(buttons, getCurrentIndex())
         currentY += spacing
+
         return buttons
     }
 
-    private fun updateCycleButtons(buttons: List<FebButton>, selectedIndex: Int) {
+    private fun updateCycleButtons(
+        buttons: List<FebButton>,
+        selectedIndex: Int
+    ) {
         buttons.forEachIndexed { index, button ->
             button.selected = index == selectedIndex
         }
     }
 
-    private fun updateToggleButtons(enableButton: FebButton, disableButton: FebButton, isEnabled: Boolean) {
+    private fun updateToggleButtons(
+        enableButton: FebButton,
+        disableButton: FebButton,
+        isEnabled: Boolean
+    ) {
         enableButton.selected = isEnabled
         disableButton.selected = !isEnabled
     }
 
-    protected fun renderSubtitle(graphics: GuiGraphicsExtractor, subtitle: String, yOffset: Int) {
+    protected fun renderSubtitle(
+        graphics: GuiGraphicsExtractor,
+        subtitle: String,
+        yOffset: Int
+    ) {
         graphics.text(
             parent.font,
             Component.literal(subtitle),
@@ -150,5 +188,8 @@ abstract class AbstractSubScreen(protected val parent: FebModGui) {
     }
 
     protected fun getCurrentY(): Int = currentY
-    protected fun incrementY(amount: Int = 35) { currentY += amount }
+
+    protected fun incrementY(amount: Int = 35) {
+        currentY += amount
+    }
 }

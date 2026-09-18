@@ -1,22 +1,25 @@
 package com.feb.mod.ui.gui
 
+import com.feb.mod.ModInfo
+import com.feb.mod.manager.ConfigManager
 import com.feb.mod.ui.gui.components.FebButton
 import com.feb.mod.ui.gui.particles.ParticleManager
+import com.feb.mod.ui.gui.subscreens.AbstractSubScreen
 import com.feb.mod.ui.gui.tabs.AddonsTab
+import com.feb.mod.ui.gui.tabs.BaseTab
 import com.feb.mod.ui.gui.tabs.FebModTab
 import com.feb.mod.ui.gui.tabs.FebTab
-import com.feb.mod.ui.gui.subscreens.AbstractSubScreen
+import com.feb.mod.ui.gui.theme.GuiTheme
+import com.feb.mod.ui.gui.theme.GuiThemes
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
-import com.feb.mod.ModInfo
-import com.feb.mod.manager.ConfigManager
-import com.feb.mod.ui.gui.theme.GuiTheme
-import com.feb.mod.ui.gui.theme.GuiThemes
 
-class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("${ModInfo.MOD_NAME} ${ModInfo.VERSION}")) {
+class FebModGui(
+    initialTab: TopTab = TopTab.FEBMOD
+) : Screen(Component.literal("${ModInfo.MOD_NAME} ${ModInfo.VERSION}")) {
 
     enum class TopTab(val displayName: String) {
         FEBMOD("FebMod"),
@@ -26,7 +29,10 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
     private var selectedTopTab: TopTab = initialTab
     private val topTabButtons = mutableListOf<FebButton>()
     private val particles = ParticleManager()
-    private val logoTexture = Identifier.fromNamespaceAndPath("febmod", "textures/gui/feb_penguin.png")
+    private val logoTexture = Identifier.fromNamespaceAndPath(
+        "febmod",
+        "textures/gui/feb_penguin.png"
+    )
 
     private val febModTab = FebModTab(this)
     private val addonsTab = AddonsTab(this)
@@ -52,28 +58,45 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
 
     override fun init() {
         super.init()
+
         activeTheme = ConfigManager.current.theme
-            .let { runCatching { ParticleManager.Style.valueOf(it) }.getOrDefault(ParticleManager.Style.WINTER) }
+            .let {
+                runCatching {
+                    ParticleManager.Style.valueOf(it)
+                }.getOrDefault(ParticleManager.Style.WINTER)
+            }
+
         currentGuiTheme = GuiThemes.fromStyle(activeTheme)
         activeGuiTheme = currentGuiTheme
+
         particles.initialize(width, height, activeTheme)
         buildTopNav()
-        if (currentSubScreen != null) currentSubScreen?.init()
-        else getCurrentTab().init()
+
+        if (currentSubScreen != null) {
+            currentSubScreen?.init()
+        } else {
+            getCurrentTab().init()
+        }
     }
 
     fun applyTheme(style: ParticleManager.Style) {
         activeTheme = style
         currentGuiTheme = GuiThemes.fromStyle(style)
         activeGuiTheme = currentGuiTheme
+
         particles.setStyle(style, width, height)
+
         ConfigManager.current.theme = style.name
         ConfigManager.save()
     }
 
     private fun buildTopNav() {
-        topTabButtons.forEach { removeWidget(it) }
+        topTabButtons.forEach {
+            removeWidget(it)
+        }
+
         topTabButtons.clear()
+
         val navY = (TOP_BAR_HEIGHT - NAV_BUTTON_HEIGHT) / 2
         val navStartX = SIDEBAR_WIDTH + 10
 
@@ -85,7 +108,10 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
                 NAV_BUTTON_HEIGHT,
                 Component.literal(tab.displayName),
                 font
-            ) { selectTopTab(tab) }
+            ) {
+                selectTopTab(tab)
+            }
+
             btn.selected = tab == selectedTopTab
             topTabButtons.add(btn)
             addRenderableWidget(btn)
@@ -93,35 +119,49 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
     }
 
     private fun selectTopTab(tab: TopTab) {
-        if (currentSubScreen != null) {
-            currentSubScreen?.handleClose()
-            currentSubScreen = null
-        }
+        closeSubScreen(false)
         getCurrentTab().clear()
         closeAddonTab()
+
         selectedTopTab = tab
-        topTabButtons.forEach { it.selected = false }
-        topTabButtons.getOrNull(TopTab.entries.indexOf(tab))?.selected = true
+
+        topTabButtons.forEach {
+            it.selected = false
+        }
+
+        topTabButtons
+            .getOrNull(TopTab.entries.indexOf(tab))
+            ?.selected = true
+
         getCurrentTab().init()
     }
 
-    private fun getCurrentTab() = when (selectedTopTab) {
-        TopTab.FEBMOD -> febModTab
-        TopTab.ADDONS -> addonsTab
+    private fun getCurrentTab(): BaseTab {
+        return when (selectedTopTab) {
+            TopTab.FEBMOD -> febModTab
+            TopTab.ADDONS -> addonsTab
+        }
     }
 
     fun openSubScreen(subScreen: AbstractSubScreen) {
         currentSubScreen?.handleClose()
         closeAddonTab()
+
+        if (selectedTopTab == TopTab.FEBMOD) {
+            febModTab.hideContent()
+        }
+
         currentSubScreen = subScreen
         currentSubScreen?.init()
     }
 
-    fun closeSubScreen() {
+    fun closeSubScreen(restoreContent: Boolean = true) {
         currentSubScreen?.handleClose()
         currentSubScreen = null
-        getCurrentTab().clear()
-        getCurrentTab().init()
+
+        if (restoreContent && selectedTopTab == TopTab.FEBMOD) {
+            febModTab.showContent()
+        }
     }
 
     fun openAddonTab(tab: FebTab) {
@@ -135,36 +175,120 @@ class FebModGui(initialTab: TopTab = TopTab.FEBMOD) : Screen(Component.literal("
         activeAddonTab = null
     }
 
-    override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
-        graphics.fill(0, 0, width, height, currentGuiTheme.background)
+    override fun extractRenderState(
+        graphics: GuiGraphicsExtractor,
+        mouseX: Int,
+        mouseY: Int,
+        delta: Float
+    ) {
+        graphics.fill(
+            0,
+            0,
+            width,
+            height,
+            currentGuiTheme.background
+        )
+
         particles.update(width, height)
         particles.render(graphics)
 
-        graphics.fill(0, TOP_BAR_HEIGHT, width, TOP_BAR_HEIGHT + 1, currentGuiTheme.divider)
-        graphics.fill(0, TOP_BAR_HEIGHT + 1, SIDEBAR_WIDTH, height, currentGuiTheme.sidebar)
-        graphics.fill(SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH + 1, height, currentGuiTheme.divider)
+        graphics.fill(
+            0,
+            TOP_BAR_HEIGHT,
+            width,
+            TOP_BAR_HEIGHT + 1,
+            currentGuiTheme.divider
+        )
+
+        graphics.fill(
+            0,
+            TOP_BAR_HEIGHT + 1,
+            SIDEBAR_WIDTH,
+            height,
+            currentGuiTheme.sidebar
+        )
+
+        graphics.fill(
+            SIDEBAR_WIDTH,
+            0,
+            SIDEBAR_WIDTH + 1,
+            height,
+            currentGuiTheme.divider
+        )
 
         if (selectedTopTab == TopTab.ADDONS) {
-            graphics.fill(SIDEBAR_WIDTH + 1, TOP_BAR_HEIGHT + 1, SIDEBAR_WIDTH + ADDON_LIST_WIDTH, height, currentGuiTheme.addonPanel)
-            graphics.fill(SIDEBAR_WIDTH + ADDON_LIST_WIDTH, TOP_BAR_HEIGHT + 1, SIDEBAR_WIDTH + ADDON_LIST_WIDTH + 1, height, currentGuiTheme.divider)
+            graphics.fill(
+                SIDEBAR_WIDTH + 1,
+                TOP_BAR_HEIGHT + 1,
+                SIDEBAR_WIDTH + ADDON_LIST_WIDTH,
+                height,
+                currentGuiTheme.addonPanel
+            )
+
+            graphics.fill(
+                SIDEBAR_WIDTH + ADDON_LIST_WIDTH,
+                TOP_BAR_HEIGHT + 1,
+                SIDEBAR_WIDTH + ADDON_LIST_WIDTH + 1,
+                height,
+                currentGuiTheme.divider
+            )
         }
 
-        super.extractRenderState(graphics, mouseX, mouseY, delta)
-        getCurrentTab().render(graphics, mouseX, mouseY, delta)
-        activeAddonTab?.render(graphics, mouseX, mouseY, delta)
-        currentSubScreen?.render(graphics, mouseX, mouseY, delta)
+        super.extractRenderState(
+            graphics,
+            mouseX,
+            mouseY,
+            delta
+        )
+
+        getCurrentTab().render(
+            graphics,
+            mouseX,
+            mouseY,
+            delta
+        )
+
+        activeAddonTab?.render(
+            graphics,
+            mouseX,
+            mouseY,
+            delta
+        )
+
+        currentSubScreen?.render(
+            graphics,
+            mouseX,
+            mouseY,
+            delta
+        )
+
         renderLogoAndTitle(graphics)
     }
 
-    private fun renderLogoAndTitle(graphics: GuiGraphicsExtractor) {
+    private fun renderLogoAndTitle(
+        graphics: GuiGraphicsExtractor
+    ) {
         val logoSize = 16
         val logoY = (TOP_BAR_HEIGHT - logoSize) / 2
         val textY = logoY + (logoSize / 2) - (font.lineHeight / 2)
-        graphics.text(font, title, 10 + (SIDEBAR_WIDTH - 20 - font.width(title)) / 2, textY, 0xFFFFFFFF.toInt(), true)
+
+        graphics.text(
+            font,
+            title,
+            10 + (SIDEBAR_WIDTH - 20 - font.width(title)) / 2,
+            textY,
+            0xFFFFFFFF.toInt(),
+            true
+        )
     }
 
     override fun isPauseScreen() = false
 
-    fun addWidget(widget: AbstractWidget) { addRenderableWidget(widget) }
-    fun removeWidget(widget: AbstractWidget) { super.removeWidget(widget) }
+    fun addWidget(widget: AbstractWidget) {
+        addRenderableWidget(widget)
+    }
+
+    fun removeWidget(widget: AbstractWidget) {
+        super.removeWidget(widget)
+    }
 }
