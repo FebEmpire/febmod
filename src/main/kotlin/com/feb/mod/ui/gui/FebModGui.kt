@@ -145,7 +145,8 @@ class FebModGui(
 
     fun openSubScreen(subScreen: AbstractSubScreen) {
         currentSubScreen?.handleClose()
-        closeAddonTab()
+
+        activeAddonTab?.clear()
 
         if (selectedTopTab == TopTab.FEBMOD) {
             febModTab.hideContent()
@@ -159,7 +160,12 @@ class FebModGui(
         currentSubScreen?.handleClose()
         currentSubScreen = null
 
-        if (restoreContent && selectedTopTab == TopTab.FEBMOD) {
+        if (selectedTopTab == TopTab.ADDONS) {
+            activeAddonTab?.init(this)
+            return
+        }
+
+        if (restoreContent) {
             febModTab.showContent()
         }
     }
@@ -241,26 +247,28 @@ class FebModGui(
             delta
         )
 
-        getCurrentTab().render(
-            graphics,
-            mouseX,
-            mouseY,
-            delta
-        )
+        if (currentSubScreen == null) {
+            getCurrentTab().render(
+                graphics,
+                mouseX,
+                mouseY,
+                delta
+            )
 
-        activeAddonTab?.render(
-            graphics,
-            mouseX,
-            mouseY,
-            delta
-        )
-
-        currentSubScreen?.render(
-            graphics,
-            mouseX,
-            mouseY,
-            delta
-        )
+            activeAddonTab?.render(
+                graphics,
+                mouseX,
+                mouseY,
+                delta
+            )
+        } else {
+            currentSubScreen?.render(
+                graphics,
+                mouseX,
+                mouseY,
+                delta
+            )
+        }
 
         renderLogoAndTitle(graphics)
     }
