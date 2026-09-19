@@ -2,13 +2,16 @@ package com.feb.mod.ui.gui.subscreens
 
 import com.feb.mod.ui.gui.FebModGui
 import com.feb.mod.ui.gui.components.FebButton
-import com.feb.mod.ui.hud.FebModHud
+import com.feb.mod.ui.gui.components.FebCheckBox
+import com.feb.mod.ui.hud.HudManager
+import com.feb.mod.ui.hud.HudSettings
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.network.chat.Component
 
 class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
 
     private lateinit var hudButton: FebButton
+    private val entryCheckboxes = mutableListOf<FebCheckBox>()
 
     override fun getTitle(): String = "Settings"
 
@@ -19,22 +22,44 @@ class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
             160,
             20,
             Component.literal(
-                if (FebModHud.enabled) "HUD: ON" else "HUD: OFF"
+                if (HudSettings.isHudEnabled()) "HUD: ON" else "HUD: OFF"
             ),
             parent.font
         ) {
-            FebModHud.enabled = !FebModHud.enabled
+            val enabled = !HudSettings.isHudEnabled()
+
+            HudSettings.setHudEnabled(enabled)
 
             hudButton.message = Component.literal(
-                if (FebModHud.enabled) "HUD: ON" else "HUD: OFF"
+                if (enabled) "HUD: ON" else "HUD: OFF"
             )
 
-            hudButton.selected = FebModHud.enabled
+            hudButton.selected = enabled
         }
 
-        hudButton.selected = FebModHud.enabled
-
+        hudButton.selected = HudSettings.isHudEnabled()
         addWidget(hudButton)
+
+        var y = FebModGui.TOP_BAR_HEIGHT + 82
+
+        HudManager.getAllEntries().forEach { entry ->
+            val labelWidth = parent.font.width(entry.displayName)
+            val checkboxX = contentX + 10 + labelWidth + 6
+
+            val checkbox = FebCheckBox(
+                checkboxX,
+                y,
+                18,
+                HudSettings.isEnabled(entry.id)
+            ) { enabled ->
+                HudSettings.setEnabled(entry.id, enabled)
+            }
+
+            entryCheckboxes.add(checkbox)
+            addWidget(checkbox)
+
+            y += 26
+        }
     }
 
     override fun renderContent(
@@ -52,5 +77,23 @@ class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
             true
         )
 
+        var y = FebModGui.TOP_BAR_HEIGHT + 87
+
+        HudManager.getAllEntries().forEach { entry ->
+            graphics.text(
+                parent.font,
+                entry.displayName,
+                contentX + 10,
+                y,
+                0xFFFFFFFF.toInt(),
+                false
+            )
+
+            y += 26
+        }
+    }
+
+    override fun onClose() {
+        entryCheckboxes.clear()
     }
 }

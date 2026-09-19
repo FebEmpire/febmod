@@ -23,7 +23,7 @@ object FebModHud {
     }
 
     private fun render(graphics: GuiGraphicsExtractor) {
-        if (!enabled) {
+        if (!enabled || !HudSettings.isHudEnabled()) {
             return
         }
 
@@ -32,6 +32,7 @@ object FebModHud {
         val entries = HudManager.getEntries()
 
         if (entries.isEmpty()) {
+            renderPlaceholder(graphics, font)
             return
         }
 
@@ -70,5 +71,43 @@ object FebModHud {
                 false
             )
         }
+    }
+
+    private fun renderPlaceholder(
+        graphics: GuiGraphicsExtractor,
+        font: net.minecraft.client.gui.Font
+    ) {
+        val text = "FebMod HUD"
+        val padding = 8
+        val boxWidth = font.width(text) + padding * 2
+        val boxHeight = 20
+
+        val boxX = Minecraft.getInstance().window.guiScaledWidth - boxWidth - 10
+        val boxY = 10
+
+        graphics.fill(
+            boxX - 1,
+            boxY - 1,
+            boxX + boxWidth + 1,
+            boxY + boxHeight + 1,
+            0xFF000000.toInt()
+        )
+
+        graphics.fill(
+            boxX,
+            boxY,
+            boxX + boxWidth,
+            boxY + boxHeight,
+            0xFF000FEB.toInt()
+        )
+
+        graphics.text(
+            font,
+            text,
+            boxX + padding,
+            boxY + 6,
+            0xFF000000.toInt(),
+            false
+        )
     }
 }

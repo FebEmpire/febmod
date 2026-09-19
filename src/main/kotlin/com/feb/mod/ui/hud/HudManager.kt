@@ -1,6 +1,7 @@
 package com.feb.mod.ui.hud
 
 import com.feb.mod.ui.hud.entries.FpsEntry
+import com.feb.mod.ui.hud.entries.LtcEntry
 
 object HudManager {
     private val entries = mutableListOf<HudEntry>()
@@ -12,9 +13,14 @@ object HudManager {
 
     fun registerDefaults() {
         register(FpsEntry)
+        register(LtcEntry)
     }
 
     fun getEntries(): List<HudEntry> {
+        return entries.filter { HudSettings.isEnabled(it.id) }
+    }
+
+    fun getAllEntries(): List<HudEntry> {
         return entries
     }
 
