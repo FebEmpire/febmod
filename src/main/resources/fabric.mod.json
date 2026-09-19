@@ -22,12 +22,6 @@
         "value": "com.feb.mod.Febmod",
         "adapter": "kotlin"
       }
-    ],
-    "fabric-datagen": [
-      {
-        "value": "com.feb.mod.FebmodDataGenerator",
-        "adapter": "kotlin"
-      }
     ]
   },
   "mixins": [

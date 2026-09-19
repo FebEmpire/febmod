@@ -5,11 +5,9 @@ import com.feb.mod.manager.*
 object FebModManager {
 
     fun init() {
-
-        CommandManager.registerAll()
+        CommandManager.initialize()
         ConfigManager.load()
         AddonManager.loadAddons()
-
     }
 
 }

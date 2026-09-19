@@ -24,12 +24,6 @@ repositories {
 	}
 }
 
-fabricApi {
-	configureDataGeneration {
-		client = true
-	}
-}
-
 dependencies {
 	minecraft("com.mojang:minecraft:$minecraft_version")
 	// no mappings block
