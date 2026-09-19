@@ -4,8 +4,12 @@ import net.minecraft.client.Minecraft
 import com.feb.mod.api.chat.ModMessage
 
 object PingCommand {
-
-    fun report() {
+    fun register() {
+        DotCommands.register("ping") {
+            execute()
+        }
+    }
+    fun execute() {
         val mc = Minecraft.getInstance()
         val player = mc.player ?: return
 
