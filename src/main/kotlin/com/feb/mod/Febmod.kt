@@ -5,6 +5,7 @@ import com.feb.mod.api.event.EventBus
 import com.feb.mod.api.event.events.ChatReceivedEvent
 import com.feb.mod.api.event.events.GameTickEvent
 import com.feb.mod.api.event.events.RenderFrameEvent
+import com.feb.mod.api.provider.ProviderRegister
 import com.feb.mod.discord.DiscordRPC
 import com.feb.mod.manager.AddonManager
 import com.feb.mod.manager.FebModManager
@@ -26,6 +27,7 @@ object Febmod : ModInitializer {
 
         DiscordRPC.onInitialize()
         FebModManager.init()
+        ProviderRegister.registerAll()
 
         LevelRenderEvents.END_MAIN.register {
             EventBus.post(RenderFrameEvent())
