@@ -31,7 +31,6 @@ object Febmod : ModInitializer {
         ProviderRegister.registerAll()
         Feature.registerAll()
 
-
         LevelRenderEvents.END_MAIN.register {
             EventBus.post(RenderFrameEvent())
         }
