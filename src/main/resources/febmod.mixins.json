@@ -6,7 +6,8 @@
     "WindowTitleMixin",
     "ChatRestrictionBypassMixin",
     "TitleScreenMixin",
-    "CommandSuggestionsMixin"
+    "CommandSuggestionsMixin",
+    "client.CameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -10,6 +10,7 @@ import com.feb.mod.discord.DiscordRPC
 import com.feb.mod.manager.AddonManager
 import com.feb.mod.manager.FebModManager
 import com.feb.mod.ui.hud.FebModHud
+import com.feb.mod.feature.Feature
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
@@ -28,6 +29,8 @@ object Febmod : ModInitializer {
         DiscordRPC.onInitialize()
         FebModManager.init()
         ProviderRegister.registerAll()
+        Feature.registerAll()
+
 
         LevelRenderEvents.END_MAIN.register {
             EventBus.post(RenderFrameEvent())
