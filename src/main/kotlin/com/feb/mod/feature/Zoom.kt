@@ -6,25 +6,17 @@ import net.minecraft.client.KeyMapping
 import org.lwjgl.glfw.GLFW
 import kotlin.math.pow
 
-/*
-* Zooooooooooooooooooooooooooooooom by THE februari10
-* this is like half broken rn i'll fix it another day
-* Like it works but like it's not like particularly like good like yk
-* Februari10 out ✌️
- */
-
 object Zoom {
 
     private lateinit var zoomKey: KeyMapping
 
-    private const val ZOOM_FOV = 20f
-    private const val TRANSITION_TIME = 120f
+    private const val ZOOM_FACTOR = 0.3f
+    private const val MIN_ZOOM_FOV = 5f
+    private const val TRANSITION_MS = 120f
 
     private var zooming = false
-    private var transitionStart = System.nanoTime()
-    private var transitionFrom = 0f
-    private var transitionTo = 0f
-    private var currentFov = 0f
+    private var progress = 0f
+    private var lastNanos = System.nanoTime()
 
     fun initialize() {
         zoomKey = KeybindApi.register(
@@ -35,53 +27,26 @@ object Zoom {
         )
 
         ClientTickEvents.END_CLIENT_TICK.register {
-            val down = zoomKey.isDown
-
-            if (down != zooming) {
-                zooming = down
-                transitionStart = System.nanoTime()
-                transitionFrom = currentFov
-                transitionTo = if (zooming) ZOOM_FOV else 0f
-            }
+            zooming = zoomKey.isDown
         }
     }
 
     fun modifyFov(baseFov: Float): Float {
-        if (currentFov == 0f) {
-            currentFov = baseFov
-            transitionFrom = baseFov
-            transitionTo = if (zooming) ZOOM_FOV else baseFov
-            transitionStart = System.nanoTime()
-        }
+        val now = System.nanoTime()
+        val dtMs = ((now - lastNanos) / 1_000_000f).coerceAtMost(100f)
+        lastNanos = now
 
-        if (!zooming && transitionTo == 0f) {
-            transitionTo = baseFov
-        }
+        val step = dtMs / TRANSITION_MS
+        progress = (if (zooming) progress + step else progress - step).coerceIn(0f, 1f)
 
-        if (!zooming && transitionTo != baseFov) {
-            transitionStart = System.nanoTime()
-            transitionFrom = currentFov
-            transitionTo = baseFov
-        }
+        if (progress == 0f) return baseFov
 
-        val elapsed = (System.nanoTime() - transitionStart) / 1_000_000f
-        val progress = (elapsed / TRANSITION_TIME).coerceIn(0f, 1f)
         val eased = 1f - (1f - progress).pow(3f)
-
-        currentFov = transitionFrom + (transitionTo - transitionFrom) * eased
-
-        if (progress >= 1f) {
-            currentFov = transitionTo
-        }
-
-        return if (zooming || currentFov != transitionTo) {
-            currentFov
-        } else {
-            baseFov
-        }
+        val targetFov = (baseFov * ZOOM_FACTOR).coerceAtLeast(MIN_ZOOM_FOV)
+        return baseFov + (targetFov - baseFov) * eased
     }
 
-    fun isZooming(): Boolean {
-        return zooming
-    }
+    fun isZooming(): Boolean = zooming
+
+    fun zoomProgress(): Float = progress
 }
