@@ -14,9 +14,12 @@ object EventBus {
     private val failureCounts = ConcurrentHashMap<String, Int>()
     private const val MAX_FAILURES_BEFORE_DISABLE = 10
 
-    class Subscription internal constructor(private val id: Long, private val owner: String) {
+    class Subscription internal constructor(
+        private val id: Long,
+        private val owner: String
+    ) {
         fun cancel() {
-            if (listeners.removeIf { it.id == id }) {
+            if (listeners.removeIf { it.id == id && it.owner == owner }) {
                 cache.clear()
             }
         }
@@ -37,20 +40,31 @@ object EventBus {
 
     fun register(owner: String, target: Any): List<Subscription> {
         val toAdd = target.javaClass.declaredMethods.mapNotNull { method ->
-            val annotation = method.getAnnotation(SubscribeEvent::class.java) ?: return@mapNotNull null
+            val annotation = method.getAnnotation(SubscribeEvent::class.java)
+                ?: return@mapNotNull null
+
             val params = method.parameterTypes
+
             if (params.size != 1 || !Event::class.java.isAssignableFrom(params[0])) {
-                logger.warn("Skipping ${target.javaClass.name}#${method.name}, invalid @SubscribeEvent signature")
+                logger.warn(
+                    "Skipping ${target.javaClass.name}#${method.name}, invalid @SubscribeEvent signature"
+                )
                 return@mapNotNull null
             }
 
             val handle = try {
                 method.trySetAccessible()
-                MethodHandles.privateLookupIn(target.javaClass, MethodHandles.lookup())
+
+                MethodHandles.privateLookupIn(
+                    target.javaClass,
+                    MethodHandles.lookup()
+                )
                     .unreflect(method)
                     .bindTo(target)
             } catch (e: Exception) {
-                logger.warn("Could not bind ${target.javaClass.name}#${method.name}: ${e.message}")
+                logger.warn(
+                    "Could not bind ${target.javaClass.name}#${method.name}: ${e.message}"
+                )
                 return@mapNotNull null
             }
 
@@ -67,8 +81,10 @@ object EventBus {
         }
 
         if (toAdd.isEmpty()) return emptyList()
+
         listeners.addAll(toAdd)
         cache.clear()
+
         return toAdd.map { Subscription(it.id, it.owner) }
     }
 
@@ -78,7 +94,15 @@ object EventBus {
         receiveCancelled: Boolean = false,
         once: Boolean = false,
         noinline handler: (T) -> Unit
-    ): Subscription = registerHandler(owner, T::class.java, priority, receiveCancelled, once, handler)
+    ): Subscription =
+        registerHandler(
+            owner,
+            T::class.java,
+            priority,
+            receiveCancelled,
+            once,
+            handler
+        )
 
     fun <T : Event> registerHandler(
         owner: String,
@@ -89,6 +113,7 @@ object EventBus {
         handler: (T) -> Unit
     ): Subscription {
         val id = idCounter.incrementAndGet()
+
         @Suppress("UNCHECKED_CAST")
         val listener = Listener(
             id = id,
@@ -100,8 +125,10 @@ object EventBus {
             label = "<lambda:${eventType.simpleName}>",
             invoke = handler as (Event) -> Unit
         )
+
         listeners.add(listener)
         cache.clear()
+
         return Subscription(id, owner)
     }
 
@@ -109,14 +136,17 @@ object EventBus {
         if (listeners.removeIf { it.owner == owner }) {
             cache.clear()
         }
+
         failureCounts.remove(owner)
     }
 
-    fun isOwnerRegistered(owner: String): Boolean = listeners.any { it.owner == owner }
+    fun isOwnerRegistered(owner: String): Boolean =
+        listeners.any { it.owner == owner }
 
     fun <T : Event> post(event: T): T {
         val matched = cache.computeIfAbsent(event.javaClass) { cls ->
-            listeners.filter { it.eventType.isAssignableFrom(cls) }
+            listeners
+                .filter { it.eventType.isAssignableFrom(cls) }
                 .sortedBy { it.priority.ordinal }
                 .toTypedArray()
         }
@@ -124,16 +154,33 @@ object EventBus {
         val toRemove = mutableListOf<Listener>()
 
         for (listener in matched) {
-            if (failureCounts.getOrDefault(listener.owner, 0) >= MAX_FAILURES_BEFORE_DISABLE) continue
-            if (event is Event.Cancellable && event.cancelled && !listener.receiveCancelled) continue
+            if (failureCounts.getOrDefault(listener.owner, 0) >= MAX_FAILURES_BEFORE_DISABLE) {
+                continue
+            }
+
+            if (event is Event.Cancellable && event.cancelled && !listener.receiveCancelled) {
+                continue
+            }
 
             try {
                 listener.invoke(event)
+                failureCounts.remove(listener.owner)
             } catch (t: Throwable) {
-                val count = failureCounts.merge(listener.owner, 1, Int::plus) ?: 1
-                logger.error("Error dispatching ${event.javaClass.simpleName} to ${listener.owner} (${listener.label})", t)
+                val count = failureCounts.merge(
+                    listener.owner,
+                    1,
+                    Int::plus
+                ) ?: 1
+
+                logger.error(
+                    "Error dispatching ${event.javaClass.simpleName} to ${listener.owner} (${listener.label})",
+                    t
+                )
+
                 if (count == MAX_FAILURES_BEFORE_DISABLE) {
-                    logger.error("Owner '${listener.owner}' disabled after $MAX_FAILURES_BEFORE_DISABLE consecutive failures")
+                    logger.error(
+                        "Owner '${listener.owner}' disabled after $MAX_FAILURES_BEFORE_DISABLE consecutive failures"
+                    )
                 }
             }
 
@@ -151,5 +198,7 @@ object EventBus {
     }
 
     fun snapshot(): List<String> =
-        listeners.map { "${it.owner} -> ${it.eventType.simpleName} (${it.label}, priority=${it.priority})" }
+        listeners.map {
+            "${it.owner} -> ${it.eventType.simpleName} (${it.label}, priority=${it.priority})"
+        }
 }

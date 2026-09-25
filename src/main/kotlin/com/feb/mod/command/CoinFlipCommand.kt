@@ -1,17 +1,17 @@
 package com.feb.mod.command
 
 import com.feb.mod.api.chat.ModMessage
-import kotlin.random.Random
+import com.feb.mod.api.command.CommandApi
 
 object CoinFlipCommand {
 
-    fun register() {
-        DotCommands.register("coin") {
+    fun register(commands: CommandApi) {
+        commands.register("coin") {
             execute()
         }
     }
 
-    fun execute() {
+    private fun execute() {
         val result = listOf("Heads", "Tails").random()
 
         ModMessage.send("Landed on $result")

@@ -44,4 +44,24 @@ object ModMessage {
             )
         }
     }
+
+    fun error(message: String) {
+        val client = Minecraft.getInstance()
+
+        if (client.player == null) {
+            println("Failed to send ModMessage error: null player")
+            return
+        }
+
+        client.execute {
+            client.player?.sendSystemMessage(
+                Component.empty()
+                    .append(prefix)
+                    .append(
+                        Component.literal(message)
+                            .withStyle(ChatFormatting.RED)
+                    )
+            )
+        }
+    }
 }

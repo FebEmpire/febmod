@@ -1,12 +1,14 @@
 package com.feb.mod.command
 
+import com.feb.mod.api.command.CommandApi
 import com.feb.mod.ui.gui.FebModGui
 import net.minecraft.client.Minecraft
 
 object FebCommand {
-    fun register() {
-        DotCommands.register("f", "feb", "febmod") { args ->
-            execute(args)
+
+    fun register(commands: CommandApi) {
+        commands.register("f", "feb", "febmod") {
+            execute(it.args)
         }
     }
 

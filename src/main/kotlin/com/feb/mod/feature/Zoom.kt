@@ -22,7 +22,6 @@ object Zoom {
         zoomKey = KeybindApi.register(
             owner = "febmod",
             id = "zoom",
-            name = "Zoom",
             defaultKey = GLFW.GLFW_KEY_C,
         )
 

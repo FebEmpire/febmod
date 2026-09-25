@@ -17,9 +17,11 @@ object KeybindApi {
     fun register(
         owner: String,
         id: String,
-        name: String,
         defaultKey: Int
     ): KeyMapping {
+        require(owner.isNotBlank())
+        require(id.isNotBlank())
+
         val fullId = "$owner.$id"
 
         keybinds[fullId]?.let {
@@ -52,14 +54,24 @@ object KeybindApi {
         get(owner, id)?.isDown = false
     }
 
-    fun remove(owner: String, id: String) {
-        keybinds.remove("$owner.$id")
+    fun remove(owner: String, id: String): Boolean {
+        val keybind = keybinds.remove("$owner.$id") ?: return false
+        keybind.isDown = false
+        return true
     }
 
     fun clear(owner: String) {
-        keybinds.keys
-            .filter { it.startsWith("$owner.") }
-            .toList()
-            .forEach(keybinds::remove)
+        keybinds.entries
+            .filter { it.key.startsWith("$owner.") }
+            .forEach {
+                it.value.isDown = false
+                keybinds.remove(it.key)
+            }
     }
+
+    fun getAll(owner: String): List<KeyMapping> =
+        keybinds
+            .filterKeys { it.startsWith("$owner.") }
+            .values
+            .toList()
 }

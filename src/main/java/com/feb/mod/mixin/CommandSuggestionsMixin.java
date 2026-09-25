@@ -1,6 +1,6 @@
 package com.feb.mod.mixin;
 
-import com.feb.mod.command.DotCommands;
+import com.feb.mod.api.command.CommandApi;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -45,7 +45,7 @@ public abstract class CommandSuggestionsMixin {
 
         SuggestionsBuilder builder = new SuggestionsBuilder(text, 1);
 
-        for (String name : DotCommands.INSTANCE.getCommands()) {
+        for (String name : CommandApi.getAllCommands()) {
             if (name.toLowerCase().startsWith(commandLower)) {
                 builder.suggest(name);
             }
