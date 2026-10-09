@@ -1,7 +1,6 @@
 package com.feb.mod.mixin;
 
 import com.feb.mod.api.command.CommandApi;
-import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -26,32 +25,37 @@ public abstract class CommandSuggestionsMixin {
     private Screen screen;
 
     @Shadow
-    CompletableFuture<Suggestions> pendingSuggestions;
+    private CompletableFuture<Suggestions> pendingSuggestions;
+
+    @Shadow
+    public abstract void showSuggestions(boolean immediateNarration);
 
     @Inject(method = "updateCommandInfo", at = @At("HEAD"), cancellable = true)
     private void feb$updateCommandInfo(CallbackInfo ci) {
-        if (!(screen instanceof ChatScreen)) {
+        if (!(this.screen instanceof ChatScreen)) {
             return;
         }
 
-        String text = input.getValue();
+        String text = this.input.getValue();
 
         if (!text.startsWith(".")) {
             return;
         }
 
         String command = text.substring(1);
-        String commandLower = command.toLowerCase();
 
         SuggestionsBuilder builder = new SuggestionsBuilder(text, 1);
 
         for (String name : CommandApi.getAllCommands()) {
-            if (name.toLowerCase().startsWith(commandLower)) {
+            if (name.regionMatches(
+                    true, 0, command, 0, command.length()
+            )) {
                 builder.suggest(name);
             }
         }
 
         this.pendingSuggestions = builder.buildFuture();
+        this.showSuggestions(false);
 
         ci.cancel();
     }
