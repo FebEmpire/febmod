@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
+import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.Identifier
 
 class FebModGui(
@@ -31,7 +32,7 @@ class FebModGui(
     private val particles = ParticleManager()
     private val logoTexture = Identifier.fromNamespaceAndPath(
         "febmod",
-        "textures/gui/feb_penguin.png"
+        "icon.png"
     )
 
     private val febModTab = FebModTab(this)
@@ -277,13 +278,28 @@ class FebModGui(
         graphics: GuiGraphicsExtractor
     ) {
         val logoSize = 16
+        val logoX = 10
         val logoY = (TOP_BAR_HEIGHT - logoSize) / 2
         val textY = logoY + (logoSize / 2) - (font.lineHeight / 2)
+        val textX = logoX + logoSize + 6
+
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            logoTexture,
+            logoX,
+            logoY,
+            0.0f,
+            0.0f,
+            logoSize,
+            logoSize,
+            logoSize,
+            logoSize
+        )
 
         graphics.text(
             font,
             title,
-            10 + (SIDEBAR_WIDTH - 20 - font.width(title)) / 2,
+            textX,
             textY,
             0xFFFFFFFF.toInt(),
             true
