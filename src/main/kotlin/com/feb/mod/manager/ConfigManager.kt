@@ -13,9 +13,15 @@ object ConfigManager {
             return File(dir, "settings.json")
         }
 
+    data class HudConfig(
+        var enabled: Boolean = true,
+        var entries: MutableMap<String, Boolean> = mutableMapOf()
+    )
+
     data class Config(
         var discordRpc: Boolean = true,
-        var theme: String = "WINTER"
+        var theme: String = "WINTER",
+        var hud: HudConfig = HudConfig()
     )
 
     var current = Config()
@@ -29,8 +35,12 @@ object ConfigManager {
             save()
             return
         }
+
         runCatching {
-            current = gson.fromJson(configFile.readText(), Config::class.java) ?: Config()
+            current = gson.fromJson(
+                configFile.readText(),
+                Config::class.java
+            ) ?: Config()
         }
     }
 }

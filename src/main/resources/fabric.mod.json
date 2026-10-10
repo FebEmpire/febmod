@@ -8,7 +8,9 @@
     "Februari10"
   ],
   "contributors": [
-    "Oblongboot"
+    "Oblongboot",
+    "yoraudev",
+    "quiteboring.dev (Nathan)"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
@@ -21,12 +23,6 @@
     "main": [
       {
         "value": "com.feb.mod.Febmod",
-        "adapter": "kotlin"
-      }
-    ],
-    "fabric-datagen": [
-      {
-        "value": "com.feb.mod.FebmodDataGenerator",
         "adapter": "kotlin"
       }
     ]

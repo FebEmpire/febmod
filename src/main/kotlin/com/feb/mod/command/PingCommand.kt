@@ -1,11 +1,18 @@
 package com.feb.mod.command
 
+import com.feb.mod.api.chat.ModMessage
+import com.feb.mod.api.command.CommandApi
 import net.minecraft.client.Minecraft
-import com.feb.mod.utils.ChatUtils
 
 object PingCommand {
 
-    fun report() {
+    fun register(commands: CommandApi) {
+        commands.register("ping") {
+            execute()
+        }
+    }
+
+    private fun execute() {
         val mc = Minecraft.getInstance()
         val player = mc.player ?: return
 
@@ -13,6 +20,6 @@ object PingCommand {
             ?.getPlayerInfo(player.uuid)
             ?.latency ?: -1
 
-        ChatUtils.modMessage("Your ping is " + ping + "ms")
+        ModMessage.send("Your ping is ${ping}ms")
     }
 }

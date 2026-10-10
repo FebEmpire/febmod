@@ -1,13 +1,58 @@
 package com.feb.mod.addon
 
+import com.feb.mod.api.chat.ChatApi
+import com.feb.mod.api.command.CommandApi
+import com.feb.mod.api.event.Event
+import com.feb.mod.api.event.EventBus
+import com.feb.mod.api.input.KeybindApi
 import com.feb.mod.manager.AddonConfigManager
+import com.feb.mod.api.gui.GuiApi
 
 class AddonContext(val id: String) {
-    fun <T : Any> config(default: T, clazz: Class<T>): AddonConfig<T> =
+
+    val events = AddonEvents(id)
+    val chat = ChatApi(id)
+    val commands = CommandApi(id)
+    val gui = GuiApi(id)
+
+    fun <T : Any> config(
+        default: T,
+        clazz: Class<T>
+    ): AddonConfig<T> =
         AddonConfig(id, default, clazz)
 
-    inline fun <reified T : Any> config(default: T): AddonConfig<T> =
+    inline fun <reified T : Any> config(
+        default: T
+    ): AddonConfig<T> =
         config(default, T::class.java)
+
+    fun cleanup() {
+        CommandApi.clear(id)
+        EventBus.unregister(id)
+        KeybindApi.clear(id)
+    }
+}
+
+class AddonEvents(
+    @PublishedApi internal val owner: String
+) {
+
+    fun register(listener: Any) =
+        EventBus.register(owner, listener)
+
+    inline fun <reified T : Event> on(
+        priority: Event.Priority = Event.Priority.MEDIUM,
+        receiveCancelled: Boolean = false,
+        once: Boolean = false,
+        noinline handler: (T) -> Unit
+    ): EventBus.Subscription =
+        EventBus.register(
+            owner,
+            priority,
+            receiveCancelled,
+            once,
+            handler
+        )
 }
 
 class AddonConfig<T : Any>(
@@ -15,10 +60,13 @@ class AddonConfig<T : Any>(
     private val default: T,
     private val clazz: Class<T>
 ) {
-    var current: T = AddonConfigManager.load(addonId, default, clazz)
+
+    var current: T =
+        AddonConfigManager.load(addonId, default, clazz)
         private set
 
-    fun save() = AddonConfigManager.save(addonId, current)
+    fun save() =
+        AddonConfigManager.save(addonId, current)
 
     fun update(block: (T) -> Unit) {
         block(current)
@@ -26,6 +74,7 @@ class AddonConfig<T : Any>(
     }
 
     fun reload() {
-        current = AddonConfigManager.load(addonId, default, clazz)
+        current =
+            AddonConfigManager.load(addonId, default, clazz)
     }
 }

@@ -40,13 +40,13 @@ class AddonsTab(parent: FebModGui) : BaseTab(parent) {
         parent.closeAddonTab()
         selectedIndex = -1
 
-        AddonManager.getAddons().forEachIndexed { index, addon ->
+        AddonManager.getAddonEntries().forEachIndexed { index, (metadata, addon) ->
             val btn = FebButton(
                 FebModGui.SIDEBAR_WIDTH + 10,
                 FebModGui.TOP_BAR_HEIGHT + 10 + index * 26,
                 FebModGui.ADDON_LIST_WIDTH - 20,
                 20,
-                Component.literal(addon.name),
+                Component.literal(metadata.name),
                 parent.font
             ) {
                 addonListButtons.forEach { it.selected = false }

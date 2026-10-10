@@ -7,6 +7,6 @@
 
 ## How to use addons:
 
-* Go in your instance folder to minecraft/config/febmod/addons and place your addon jar in there
+* Go in your instance folder to minecraft/febmod/addons and place your addon jar in there
 
 # Enjoy FebMod 🗣️ 🔥 💯
