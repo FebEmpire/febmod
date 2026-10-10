@@ -1,7 +1,10 @@
 package com.feb.mod.ui.hud
 
+import com.feb.mod.ui.hud.entries.BtcEntry
+import com.feb.mod.ui.hud.entries.EthEntry
 import com.feb.mod.ui.hud.entries.FpsEntry
 import com.feb.mod.ui.hud.entries.LtcEntry
+import com.feb.mod.ui.hud.entries.SolEntry
 
 object HudManager {
     private val entries = mutableListOf<HudEntry>()
@@ -14,6 +17,9 @@ object HudManager {
     fun registerDefaults() {
         register(FpsEntry)
         register(LtcEntry)
+        register(SolEntry)
+        register(EthEntry)
+        register(BtcEntry)
     }
 
     fun getEntries(): List<HudEntry> {
