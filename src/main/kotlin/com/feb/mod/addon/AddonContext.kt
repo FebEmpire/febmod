@@ -6,12 +6,14 @@ import com.feb.mod.api.event.Event
 import com.feb.mod.api.event.EventBus
 import com.feb.mod.api.input.KeybindApi
 import com.feb.mod.manager.AddonConfigManager
+import com.feb.mod.api.gui.GuiApi
 
 class AddonContext(val id: String) {
 
     val events = AddonEvents(id)
     val chat = ChatApi(id)
     val commands = CommandApi(id)
+    val gui = GuiApi(id)
 
     fun <T : Any> config(
         default: T,

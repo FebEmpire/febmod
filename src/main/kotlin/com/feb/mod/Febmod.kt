@@ -2,6 +2,7 @@ package com.feb.mod
 
 import com.feb.mod.api.chat.ModMessage
 import com.feb.mod.api.event.EventBus
+import com.feb.mod.internal.gui.GuiTracker
 import com.feb.mod.api.event.events.ChatReceivedEvent
 import com.feb.mod.api.event.events.GameTickEvent
 import com.feb.mod.api.event.events.RenderFrameEvent
@@ -30,6 +31,7 @@ object Febmod : ModInitializer {
         FebModManager.init()
         ProviderRegister.registerAll()
         Feature.registerAll()
+        GuiTracker.initialize()
 
         LevelRenderEvents.END_MAIN.register {
             EventBus.post(RenderFrameEvent())
