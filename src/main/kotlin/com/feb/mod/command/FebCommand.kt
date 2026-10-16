@@ -1,3 +1,4 @@
+
 package com.feb.mod.command
 
 import com.feb.mod.api.command.CommandApi
@@ -18,7 +19,7 @@ object FebCommand {
         when (args.firstOrNull()?.lowercase()) {
             "addon", "addons" -> {
                 mc.execute {
-                    mc.setScreen(
+                    mc.gui.setScreen(
                         FebModGui(FebModGui.TopTab.ADDONS)
                     )
                 }
@@ -26,7 +27,7 @@ object FebCommand {
 
             else -> {
                 mc.execute {
-                    mc.setScreen(FebModGui())
+                    mc.gui.setScreen(FebModGui())
                 }
             }
         }

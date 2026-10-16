@@ -34,7 +34,7 @@ object GuiTracker {
     fun getCurrentContainer(): ContainerView? = currentContainer
 
     private fun update() {
-        val screen = Minecraft.getInstance().screen
+        val screen: Screen? = Minecraft.getInstance().gui.screen()
 
         if (screen !== currentScreen) {
             currentScreenView?.let {
@@ -42,8 +42,8 @@ object GuiTracker {
             }
 
             currentScreen = screen
-            currentScreenView = screen?.let {
-                ScreenSnapshot(it.title.string)
+            currentScreenView = screen?.let { current ->
+                ScreenSnapshot(current.title.string)
             }
 
             currentScreenView?.let {

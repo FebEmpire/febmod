@@ -31,7 +31,7 @@ class FebModScreen(private val parent: Screen) : Screen(Component.literal("FebMo
 
         addRenderableWidget(
             BlueButton.of(width / 2 - 100, height - 40, 200, 20, "Back") {
-                minecraft.setScreen(parent)
+                minecraft.gui.setScreen(parent)
             }
         )
     }

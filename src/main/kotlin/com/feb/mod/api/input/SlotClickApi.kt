@@ -14,7 +14,7 @@ object SlotClickApi {
         input: ContainerInput = ContainerInput.PICKUP
     ): Boolean {
         val player = minecraft.player ?: return false
-        val screen = minecraft.screen as? AbstractContainerScreen<*> ?: return false
+        val screen = minecraft.gui.screen() as? AbstractContainerScreen<*> ?: return false
         val menu = screen.menu
         val gameMode = minecraft.gameMode ?: return false
 
