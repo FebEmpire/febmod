@@ -1,9 +1,7 @@
 package com.feb.mod.manager
 
 import com.feb.mod.api.command.CommandApi
-import com.feb.mod.command.CoinFlipCommand
-import com.feb.mod.command.FebCommand
-import com.feb.mod.command.PingCommand
+import com.feb.mod.command.*
 
 object FebModManager {
 
@@ -15,6 +13,7 @@ object FebModManager {
         FebCommand.register(commands)
         CoinFlipCommand.register(commands)
         PingCommand.register(commands)
+        DiceCommand.register(commands)
 
         AddonManager.loadAddons()
     }
