@@ -48,17 +48,17 @@ public abstract class TitleScreenMixin extends Screen {
 
             Button.OnPress action = switch (label) {
                 case String s when s.contains("Singleplayer") ->
-                        btn -> this.minecraft.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(this));
+                        btn -> this.minecraft.gui.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(this));
                 case String s when s.contains("Multiplayer") -> btn -> {
                     Screen screen = this.minecraft.options.skipMultiplayerWarning
                             ? new net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(this)
                             : new net.minecraft.client.gui.screens.multiplayer.SafetyScreen(this);
-                    this.minecraft.setScreen(screen);
+                    this.minecraft.gui.setScreen(screen);
                 };
                 case String s when s.contains("Realms") ->
-                        btn -> this.minecraft.setScreen(new com.mojang.realmsclient.RealmsMainScreen(this));
+                        btn -> this.minecraft.gui.setScreen(new com.mojang.realmsclient.RealmsMainScreen(this));
                 case String s when s.contains("Options") ->
-                        btn -> this.minecraft.setScreen(new net.minecraft.client.gui.screens.options.OptionsScreen(this, this.minecraft.options, false));
+                        btn -> this.minecraft.gui.setScreen(new net.minecraft.client.gui.screens.options.OptionsScreen(this, this.minecraft.options, false));
                 case String s when s.contains("Quit") ->
                         btn -> this.minecraft.stop();
                 default -> btn -> { };
@@ -69,7 +69,7 @@ public abstract class TitleScreenMixin extends Screen {
 
         this.addRenderableWidget(
                 BlueButton.of(this.width / 2 - 100, this.height / 2 + 50, 200, 20, "FebMod", btn ->
-                        this.minecraft.setScreen(new com.feb.mod.ui.gui.FebModScreen(this))
+                        this.minecraft.gui.setScreen(new com.feb.mod.ui.gui.FebModScreen(this))
                 )
         );
     }

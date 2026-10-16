@@ -61,21 +61,21 @@ object ItemApi {
     )
 
     fun isInventoryOpen(): Boolean {
-        return minecraft.screen is InventoryScreen
+        return minecraft.gui.screen() is InventoryScreen
     }
 
     fun openInventory() {
         val player = minecraft.player ?: return
 
-        if (minecraft.screen == null) {
-            minecraft.setScreen(InventoryScreen(player))
+        if (minecraft.gui.screen() == null) {
+            minecraft.gui.setScreen(InventoryScreen(player))
         }
     }
 
     fun closeInventory() {
         if (isInventoryOpen()) {
             minecraft.player?.closeContainer()
-            minecraft.setScreen(null)
+            minecraft.gui.setScreen(null)
         }
     }
 
