@@ -13,11 +13,7 @@ val loader_version: String by project
 val fabric_api_version: String by project
 val fabric_kotlin_version: String by project
 
-version = if (System.getenv("JITPACK") == "true") {
-	System.getenv("VERSION") ?: mod_version
-} else {
-	mod_version
-}
+version = providers.gradleProperty("version").orElse(mod_version).get()
 
 group = if (System.getenv("JITPACK") == "true") {
 	"com.github.FebEmpire"
