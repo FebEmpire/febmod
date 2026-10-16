@@ -2,8 +2,8 @@
 
 ## How to use FebMod:
 
-* Create a instance for minecraft 26.1.2 and install fabric to it
-* Download the latest version of fabric and fabric language kotlin for 26.1.2
+* Create a instance for minecraft 26.2 and install fabric to it
+* Download the latest version of fabric and fabric language kotlin for 26.2
 
 ## How to use addons:
 
