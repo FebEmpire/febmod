@@ -13,8 +13,17 @@ val loader_version: String by project
 val fabric_api_version: String by project
 val fabric_kotlin_version: String by project
 
-version = mod_version
-group = maven_group
+version = if (System.getenv("JITPACK") == "true") {
+	System.getenv("VERSION") ?: mod_version
+} else {
+	mod_version
+}
+
+group = if (System.getenv("JITPACK") == "true") {
+	"com.github.FebEmpire"
+} else {
+	maven_group
+}
 
 repositories {
 	mavenCentral()
