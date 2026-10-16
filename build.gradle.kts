@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
 
 plugins {
 	id("net.fabricmc.fabric-loom")
@@ -94,4 +95,8 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+tasks.withType<GenerateModuleMetadata>().configureEach {
+	enabled = false
 }
