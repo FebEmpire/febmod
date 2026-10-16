@@ -13,6 +13,7 @@ run/
 *.txt
 *.dat
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 
 # OS
 .DS_Store
