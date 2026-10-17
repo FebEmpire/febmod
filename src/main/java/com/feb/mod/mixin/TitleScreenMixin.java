@@ -2,6 +2,7 @@
 package com.feb.mod.mixin;
 
 import com.feb.mod.ui.gui.components.BlueButton;
+import com.feb.mod.manager.ConfigManager;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
@@ -22,7 +23,8 @@ import java.util.Map;
 @Mixin(net.minecraft.client.gui.screens.TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
 
-    private boolean customUiEnabled = true;
+    private boolean customUiEnabled =
+            ConfigManager.INSTANCE.getCurrent().getCustomTitleScreen();
 
     private final List<Button> replacementButtons = new ArrayList<>();
     private final Map<Button, boolean[]> originalButtonStates = new IdentityHashMap<>();
@@ -137,6 +139,8 @@ public abstract class TitleScreenMixin extends Screen {
                 "UI: ON",
                 btn -> {
                     customUiEnabled = false;
+                    ConfigManager.INSTANCE.getCurrent().setCustomTitleScreen(false);
+                    ConfigManager.INSTANCE.save();
                     updateUiVisibility();
                 }
         );
@@ -145,6 +149,8 @@ public abstract class TitleScreenMixin extends Screen {
                 Component.literal("UI: OFF"),
                 btn -> {
                     customUiEnabled = true;
+                    ConfigManager.INSTANCE.getCurrent().setCustomTitleScreen(true);
+                    ConfigManager.INSTANCE.save();
                     updateUiVisibility();
                 }
         ).bounds(toggleX, toggleY, 75, 20).build();

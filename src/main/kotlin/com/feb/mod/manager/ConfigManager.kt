@@ -21,7 +21,8 @@ object ConfigManager {
     data class Config(
         var discordRpc: Boolean = true,
         var theme: String = "WINTER",
-        var hud: HudConfig = HudConfig()
+        var hud: HudConfig = HudConfig(),
+        var customTitleScreen: Boolean = false
     )
 
     var current = Config()
