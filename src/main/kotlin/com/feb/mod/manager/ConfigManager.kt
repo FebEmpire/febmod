@@ -15,8 +15,11 @@ object ConfigManager {
 
     data class HudConfig(
         var enabled: Boolean = true,
-        var entries: MutableMap<String, Boolean> = mutableMapOf()
+        var entries: MutableMap<String, Boolean> = mutableMapOf(),
+        var x: Int = 0,
+        var y: Int = 10
     )
+
 
     data class Config(
         var discordRpc: Boolean = true,

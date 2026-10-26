@@ -3,14 +3,17 @@ package com.feb.mod.ui.gui.subscreens
 import com.feb.mod.ui.gui.FebModGui
 import com.feb.mod.ui.gui.components.FebButton
 import com.feb.mod.ui.gui.components.FebCheckBox
+import com.feb.mod.ui.hud.HudEditorScreen
 import com.feb.mod.ui.hud.HudManager
 import com.feb.mod.ui.hud.HudSettings
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.network.chat.Component
 
 class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
 
     private lateinit var hudButton: FebButton
+    private lateinit var moveHudButton: FebButton
     private val entryCheckboxes = mutableListOf<FebCheckBox>()
 
     override fun getTitle(): String = "Settings"
@@ -19,7 +22,7 @@ class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
         hudButton = FebButton(
             contentX + 10,
             FebModGui.TOP_BAR_HEIGHT + 50,
-            160,
+            100,
             20,
             Component.literal(
                 if (HudSettings.isHudEnabled()) "HUD: ON" else "HUD: OFF"
@@ -39,6 +42,23 @@ class SettingsScreen(parent: FebModGui) : AbstractSubScreen(parent) {
 
         hudButton.selected = HudSettings.isHudEnabled()
         addWidget(hudButton)
+
+        moveHudButton = FebButton(
+            contentX + 116,
+            FebModGui.TOP_BAR_HEIGHT + 50,
+            100,
+            20,
+            Component.literal("Move HUD"),
+            parent.font
+        ) {
+            Minecraft.getInstance().execute {
+                Minecraft.getInstance().gui.setScreen(
+                    HudEditorScreen()
+                )
+            }
+        }
+
+        addWidget(moveHudButton)
 
         var y = FebModGui.TOP_BAR_HEIGHT + 82
 

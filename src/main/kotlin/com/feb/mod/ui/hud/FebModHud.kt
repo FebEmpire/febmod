@@ -1,5 +1,6 @@
 package com.feb.mod.ui.hud
 
+import com.feb.mod.manager.ConfigManager
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
@@ -9,10 +10,7 @@ object FebModHud {
 
     var enabled = true
 
-    private val HUD_ID = Identifier.fromNamespaceAndPath(
-        "febmod",
-        "hud"
-    )
+    private val HUD_ID = Identifier.fromNamespaceAndPath("febmod", "hud")
 
     fun register() {
         HudManager.registerDefaults()
@@ -23,91 +21,87 @@ object FebModHud {
     }
 
     private fun render(graphics: GuiGraphicsExtractor) {
-        if (!enabled || !HudSettings.isHudEnabled()) {
-            return
-        }
+        if (!enabled || !HudSettings.isHudEnabled()) return
 
         val client = Minecraft.getInstance()
-        val font = client.font
-        val entries = HudManager.getEntries()
+        val config = ConfigManager.current.hud
+        val (hudWidth, _) = getHudSize()
 
-        if (entries.isEmpty()) {
-            renderPlaceholder(graphics, font)
-            return
+        val x = if (config.x < 0) {
+            client.window.guiScaledWidth - hudWidth - 10
+        } else {
+            config.x
         }
 
+        renderAt(graphics, x, config.y)
+    }
+
+    internal fun getHudSize(): Pair<Int, Int> {
+        val font = Minecraft.getInstance().font
+        val entries = HudManager.getEntries()
         val padding = 8
         val spacing = 2
-        val textWidth = entries.maxOf { font.width(it.getText()) }
-        val boxWidth = textWidth + padding * 2
-        val boxHeight = entries.size * (font.lineHeight + spacing) + padding * 2
 
-        val boxX = client.window.guiScaledWidth - boxWidth - 10
-        val boxY = 10
+        val textWidth = if (entries.isEmpty()) {
+            font.width("FebMod HUD")
+        } else {
+            entries.maxOf { font.width(it.getText()) }
+        }
+
+        val height = if (entries.isEmpty()) {
+            20
+        } else {
+            entries.size * (font.lineHeight + spacing) + padding * 2
+        }
+
+        return Pair(textWidth + padding * 2, height)
+    }
+
+    internal fun renderAt(
+        graphics: GuiGraphicsExtractor,
+        x: Int,
+        y: Int
+    ): Pair<Int, Int> {
+        val font = Minecraft.getInstance().font
+        val entries = HudManager.getEntries()
+        val (boxWidth, boxHeight) = getHudSize()
+        val padding = 8
+        val spacing = 2
 
         graphics.fill(
-            boxX - 1,
-            boxY - 1,
-            boxX + boxWidth + 1,
-            boxY + boxHeight + 1,
+            x - 1, y - 1,
+            x + boxWidth + 1, y + boxHeight + 1,
             0xFF000000.toInt()
         )
 
         graphics.fill(
-            boxX,
-            boxY,
-            boxX + boxWidth,
-            boxY + boxHeight,
+            x, y,
+            x + boxWidth, y + boxHeight,
             0xFF000FEB.toInt()
         )
 
-        entries.forEachIndexed { index, entry ->
+        if (entries.isEmpty()) {
             graphics.text(
                 font,
-                entry.getText(),
-                boxX + padding,
-                boxY + padding + index * (font.lineHeight + spacing),
+                "FebMod HUD",
+                x + padding,
+                y + 6,
                 0xFF000000.toInt(),
                 false
             )
+        } else {
+            entries.forEachIndexed { index, entry ->
+                graphics.text(
+                    font,
+                    entry.getText(),
+                    x + padding,
+                    y + padding + index * (font.lineHeight + spacing),
+                    0xFF000000.toInt(),
+                    false
+                )
+            }
         }
-    }
 
-    private fun renderPlaceholder(
-        graphics: GuiGraphicsExtractor,
-        font: net.minecraft.client.gui.Font
-    ) {
-        val text = "FebMod HUD"
-        val padding = 8
-        val boxWidth = font.width(text) + padding * 2
-        val boxHeight = 20
-
-        val boxX = Minecraft.getInstance().window.guiScaledWidth - boxWidth - 10
-        val boxY = 10
-
-        graphics.fill(
-            boxX - 1,
-            boxY - 1,
-            boxX + boxWidth + 1,
-            boxY + boxHeight + 1,
-            0xFF000000.toInt()
-        )
-
-        graphics.fill(
-            boxX,
-            boxY,
-            boxX + boxWidth,
-            boxY + boxHeight,
-            0xFF000FEB.toInt()
-        )
-
-        graphics.text(
-            font,
-            text,
-            boxX + padding,
-            boxY + 6,
-            0xFF000000.toInt(),
-            false
-        )
+        return Pair(boxWidth, boxHeight)
     }
 }
