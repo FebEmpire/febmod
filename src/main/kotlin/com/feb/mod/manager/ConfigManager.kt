@@ -6,6 +6,7 @@ import java.io.File
 
 object ConfigManager {
     private val gson = GsonBuilder().setPrettyPrinting().create()
+
     private val configFile: File
         get() {
             val dir = File(Minecraft.getInstance().gameDirectory, "config/febmod")
@@ -16,10 +17,10 @@ object ConfigManager {
     data class HudConfig(
         var enabled: Boolean = true,
         var entries: MutableMap<String, Boolean> = mutableMapOf(),
-        var x: Int = 0,
-        var y: Int = 10
+        var x: Int = -1,
+        var y: Int = 10,
+        var scale: Float = 1.0f
     )
-
 
     data class Config(
         var discordRpc: Boolean = true,
@@ -45,6 +46,11 @@ object ConfigManager {
                 configFile.readText(),
                 Config::class.java
             ) ?: Config()
+
+            current.hud.scale = current.hud.scale
+                .takeIf { it.isFinite() && it > 0f }
+                ?.coerceIn(0.5f, 2.0f)
+                ?: 1.0f
         }
     }
 }

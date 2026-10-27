@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier
 object FebModHud {
 
     var enabled = true
+    var editorOpen = false
 
     private val HUD_ID = Identifier.fromNamespaceAndPath("febmod", "hud")
 
@@ -21,11 +22,12 @@ object FebModHud {
     }
 
     private fun render(graphics: GuiGraphicsExtractor) {
-        if (!enabled || !HudSettings.isHudEnabled()) return
+        if (!enabled || editorOpen || !HudSettings.isHudEnabled()) return
 
         val client = Minecraft.getInstance()
         val config = ConfigManager.current.hud
-        val (hudWidth, _) = getHudSize()
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (hudWidth, _) = getScaledHudSize(scale)
 
         val x = if (config.x < 0) {
             client.window.guiScaledWidth - hudWidth - 10
@@ -33,7 +35,7 @@ object FebModHud {
             config.x
         }
 
-        renderAt(graphics, x, config.y)
+        renderScaledAt(graphics, x, config.y, scale)
     }
 
     internal fun getHudSize(): Pair<Int, Int> {
@@ -55,6 +57,29 @@ object FebModHud {
         }
 
         return Pair(textWidth + padding * 2, height)
+    }
+
+    internal fun getScaledHudSize(scale: Float = ConfigManager.current.hud.scale): Pair<Int, Int> {
+        val (width, height) = getHudSize()
+        return Pair(
+            (width * scale).toInt(),
+            (height * scale).toInt()
+        )
+    }
+
+    internal fun renderScaledAt(
+        graphics: GuiGraphicsExtractor,
+        x: Int,
+        y: Int,
+        scale: Float = ConfigManager.current.hud.scale
+    ) {
+        graphics.pose().pushMatrix()
+        graphics.pose().translate(x.toFloat(), y.toFloat())
+        graphics.pose().scale(scale, scale)
+
+        renderAt(graphics, 0, 0)
+
+        graphics.pose().popMatrix()
     }
 
     internal fun renderAt(

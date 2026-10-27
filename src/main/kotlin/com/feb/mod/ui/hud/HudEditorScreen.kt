@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
+import kotlin.math.roundToInt
 
 class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
 
@@ -13,6 +14,11 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
     private var dragOffsetY = 0
 
     override fun isPauseScreen(): Boolean = false
+
+    override fun init() {
+        super.init()
+        FebModHud.editorOpen = true
+    }
 
     override fun extractRenderState(
         graphics: GuiGraphicsExtractor,
@@ -25,12 +31,13 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
         graphics.fill(0, 0, width, height, 0x80000000.toInt())
 
         val config = ConfigManager.current.hud
-        val (hudWidth, hudHeight) = FebModHud.getHudSize()
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
 
         val x = if (config.x < 0) width - hudWidth - 10 else config.x
         val y = config.y
 
-        FebModHud.renderAt(graphics, x, y)
+        FebModHud.renderScaledAt(graphics, x, y, scale)
 
         graphics.outline(
             x - 2,
@@ -40,7 +47,20 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
             0xFFFFFFFF.toInt()
         )
 
-        val instructions = "Drag HUD to move | ESC to save"
+        val scaleText = "HUD Scale: ${"%.1f".format(java.util.Locale.ROOT, scale)}x"
+        val scaleTextX = x + (hudWidth - font.width(scaleText)) / 2
+        val scaleTextY = (y - 14).coerceAtLeast(4)
+
+        graphics.text(
+            font,
+            scaleText,
+            scaleTextX,
+            scaleTextY,
+            0xFFFFFFFF.toInt(),
+            true
+        )
+
+        val instructions = "Drag to move | Scroll to resize | ESC to save"
 
         graphics.text(
             font,
@@ -61,7 +81,8 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
         }
 
         val config = ConfigManager.current.hud
-        val (hudWidth, hudHeight) = FebModHud.getHudSize()
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
 
         val x = if (config.x < 0) width - hudWidth - 10 else config.x
         val y = config.y
@@ -93,13 +114,45 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
         }
 
         val config = ConfigManager.current.hud
-        val (hudWidth, hudHeight) = FebModHud.getHudSize()
+        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize()
 
         config.x = (event.x().toInt() - dragOffsetX)
             .coerceIn(0, (width - hudWidth).coerceAtLeast(0))
 
         config.y = (event.y().toInt() - dragOffsetY)
             .coerceIn(0, (height - hudHeight).coerceAtLeast(0))
+
+        return true
+    }
+
+    override fun mouseScrolled(
+        mouseX: Double,
+        mouseY: Double,
+        scrollX: Double,
+        scrollY: Double
+    ): Boolean {
+        val config = ConfigManager.current.hud
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
+
+        val x = if (config.x < 0) width - hudWidth - 10 else config.x
+        val y = config.y
+
+        val hoveringHud =
+            mouseX >= x && mouseX <= x + hudWidth &&
+                    mouseY >= y && mouseY <= y + hudHeight
+
+        if (!hoveringHud || scrollY == 0.0) {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
+        }
+
+        val change = if (scrollY > 0.0) 0.1f else -0.1f
+
+        config.scale = ((scale + change) * 10f)
+            .roundToInt()
+            .coerceIn(5, 20) / 10f
+
+        ConfigManager.save()
 
         return true
     }
@@ -117,6 +170,12 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
     override fun onClose() {
         dragging = false
         ConfigManager.save()
+        FebModHud.editorOpen = false
         super.onClose()
+    }
+
+    override fun removed() {
+        FebModHud.editorOpen = false
+        super.removed()
     }
 }
