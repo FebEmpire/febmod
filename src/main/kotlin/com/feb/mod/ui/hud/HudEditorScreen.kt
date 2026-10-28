@@ -9,7 +9,16 @@ import kotlin.math.roundToInt
 
 class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
 
+    private data class HudBounds(
+        val x: Int,
+        val y: Int,
+        val width: Int,
+        val height: Int
+    )
+
     private var dragging = false
+    private var draggingHudId: String? = null
+    private var selectedHudId = BUILTIN_HUD_ID
     private var dragOffsetX = 0
     private var dragOffsetY = 0
 
@@ -18,6 +27,28 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
     override fun init() {
         super.init()
         FebModHud.editorOpen = true
+    }
+
+    private fun builtinBounds(): HudBounds {
+        val config = ConfigManager.current.hud
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (w, h) = FebModHud.getScaledHudSize(scale)
+        val x = if (config.x < 0) width - w - 10 else config.x
+
+        return HudBounds(x, config.y, w, h)
+    }
+
+    private fun addonBounds(hud: AddonHud): HudBounds {
+        val config = AddonHudManager.configFor(hud)
+        val scale = config.scale.coerceIn(0.5f, 2.0f)
+        val (w, h) = AddonHudRenderer.getScaledHudSize(hud, scale)
+
+        return HudBounds(config.x, config.y, w, h)
+    }
+
+    private fun contains(bounds: HudBounds, mouseX: Double, mouseY: Double): Boolean {
+        return mouseX >= bounds.x && mouseX <= bounds.x + bounds.width &&
+                mouseY >= bounds.y && mouseY <= bounds.y + bounds.height
     }
 
     override fun extractRenderState(
@@ -32,33 +63,68 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
 
         val config = ConfigManager.current.hud
         val scale = config.scale.coerceIn(0.5f, 2.0f)
-        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
+        val builtin = builtinBounds()
 
-        val x = if (config.x < 0) width - hudWidth - 10 else config.x
-        val y = config.y
-
-        FebModHud.renderScaledAt(graphics, x, y, scale)
+        FebModHud.renderScaledAt(graphics, builtin.x, builtin.y, scale)
 
         graphics.outline(
-            x - 2,
-            y - 2,
-            hudWidth + 4,
-            hudHeight + 4,
-            0xFFFFFFFF.toInt()
+            builtin.x - 2,
+            builtin.y - 2,
+            builtin.width + 4,
+            builtin.height + 4,
+            if (selectedHudId == BUILTIN_HUD_ID) {
+                0xFFFFFFFF.toInt()
+            } else {
+                0xFFAAAAAA.toInt()
+            }
         )
 
-        val scaleText = "HUD Scale: ${"%.1f".format(java.util.Locale.ROOT, scale)}x"
-        val scaleTextX = x + (hudWidth - font.width(scaleText)) / 2
-        val scaleTextY = (y - 14).coerceAtLeast(4)
-
+        val builtinLabel = "FebMod HUD - ${"%.1f".format(java.util.Locale.ROOT, scale)}x"
         graphics.text(
             font,
-            scaleText,
-            scaleTextX,
-            scaleTextY,
+            builtinLabel,
+            builtin.x,
+            (builtin.y - 14).coerceAtLeast(4),
             0xFFFFFFFF.toInt(),
             true
         )
+
+        AddonHudManager.getAll().forEach { hud ->
+            val addonConfig = AddonHudManager.configFor(hud)
+            val addonScale = addonConfig.scale.coerceIn(0.5f, 2.0f)
+            val bounds = addonBounds(hud)
+
+            AddonHudRenderer.renderScaledAt(
+                graphics,
+                hud,
+                bounds.x,
+                bounds.y,
+                addonScale
+            )
+
+            val selected = selectedHudId == hud.fullId
+
+            graphics.outline(
+                bounds.x - 2,
+                bounds.y - 2,
+                bounds.width + 4,
+                bounds.height + 4,
+                if (selected) 0xFFFFFFFF.toInt() else 0xFFAAAAAA.toInt()
+            )
+
+            val label = "${hud.displayName} - ${
+                "%.1f".format(java.util.Locale.ROOT, addonScale)
+            }x"
+
+            graphics.text(
+                font,
+                label,
+                bounds.x,
+                (bounds.y - 14).coerceAtLeast(4),
+                0xFFFFFFFF.toInt(),
+                true
+            )
+        }
 
         val instructions = "Drag to move | Scroll to resize | ESC to save"
 
@@ -80,24 +146,42 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
             return super.mouseClicked(event, doubleClick)
         }
 
-        val config = ConfigManager.current.hud
-        val scale = config.scale.coerceIn(0.5f, 2.0f)
-        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
-
-        val x = if (config.x < 0) width - hudWidth - 10 else config.x
-        val y = config.y
         val mouseX = event.x().toInt()
         val mouseY = event.y().toInt()
 
-        if (
-            mouseX >= x && mouseX <= x + hudWidth &&
-            mouseY >= y && mouseY <= y + hudHeight
-        ) {
+        val addon = AddonHudManager.getAll()
+            .asReversed()
+            .firstOrNull { contains(addonBounds(it), mouseX.toDouble(), mouseY.toDouble()) }
+
+        if (addon != null) {
+            val bounds = addonBounds(addon)
+
+            selectedHudId = addon.fullId
+            draggingHudId = addon.fullId
             dragging = true
-            dragOffsetX = mouseX - x
-            dragOffsetY = mouseY - y
-            config.x = x
-            config.y = y
+            dragOffsetX = mouseX - bounds.x
+            dragOffsetY = mouseY - bounds.y
+
+            val addonConfig = AddonHudManager.configFor(addon)
+            addonConfig.x = bounds.x
+            addonConfig.y = bounds.y
+
+            return true
+        }
+
+        val builtin = builtinBounds()
+
+        if (contains(builtin, mouseX.toDouble(), mouseY.toDouble())) {
+            selectedHudId = BUILTIN_HUD_ID
+            draggingHudId = null
+            dragging = true
+            dragOffsetX = mouseX - builtin.x
+            dragOffsetY = mouseY - builtin.y
+
+            val config = ConfigManager.current.hud
+            config.x = builtin.x
+            config.y = builtin.y
+
             return true
         }
 
@@ -113,14 +197,31 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
             return super.mouseDragged(event, deltaX, deltaY)
         }
 
-        val config = ConfigManager.current.hud
-        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize()
+        val addonId = draggingHudId
 
-        config.x = (event.x().toInt() - dragOffsetX)
-            .coerceIn(0, (width - hudWidth).coerceAtLeast(0))
+        if (addonId != null) {
+            val hud = AddonHudManager.getAll()
+                .firstOrNull { it.fullId == addonId }
+                ?: return false
 
-        config.y = (event.y().toInt() - dragOffsetY)
-            .coerceIn(0, (height - hudHeight).coerceAtLeast(0))
+            val addonConfig = AddonHudManager.configFor(hud)
+            val bounds = addonBounds(hud)
+
+            addonConfig.x = (event.x().toInt() - dragOffsetX)
+                .coerceIn(0, (width - bounds.width).coerceAtLeast(0))
+
+            addonConfig.y = (event.y().toInt() - dragOffsetY)
+                .coerceIn(0, (height - bounds.height).coerceAtLeast(0))
+        } else {
+            val config = ConfigManager.current.hud
+            val bounds = builtinBounds()
+
+            config.x = (event.x().toInt() - dragOffsetX)
+                .coerceIn(0, (width - bounds.width).coerceAtLeast(0))
+
+            config.y = (event.y().toInt() - dragOffsetY)
+                .coerceIn(0, (height - bounds.height).coerceAtLeast(0))
+        }
 
         return true
     }
@@ -131,35 +232,52 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
         scrollX: Double,
         scrollY: Double
     ): Boolean {
-        val config = ConfigManager.current.hud
-        val scale = config.scale.coerceIn(0.5f, 2.0f)
-        val (hudWidth, hudHeight) = FebModHud.getScaledHudSize(scale)
-
-        val x = if (config.x < 0) width - hudWidth - 10 else config.x
-        val y = config.y
-
-        val hoveringHud =
-            mouseX >= x && mouseX <= x + hudWidth &&
-                    mouseY >= y && mouseY <= y + hudHeight
-
-        if (!hoveringHud || scrollY == 0.0) {
+        if (scrollY == 0.0) {
             return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
         }
 
+        val addon = AddonHudManager.getAll()
+            .asReversed()
+            .firstOrNull { contains(addonBounds(it), mouseX, mouseY) }
+
         val change = if (scrollY > 0.0) 0.1f else -0.1f
 
-        config.scale = ((scale + change) * 10f)
-            .roundToInt()
-            .coerceIn(5, 20) / 10f
+        if (addon != null) {
+            val addonConfig = AddonHudManager.configFor(addon)
 
-        ConfigManager.save()
+            addonConfig.scale = (
+                    (addonConfig.scale.coerceIn(0.5f, 2.0f) + change) * 10f
+                    ).roundToInt().coerceIn(5, 20) / 10f
 
-        return true
+            selectedHudId = addon.fullId
+            ConfigManager.save()
+
+            return true
+        }
+
+        val builtin = builtinBounds()
+
+        if (contains(builtin, mouseX, mouseY)) {
+            val config = ConfigManager.current.hud
+            val scale = config.scale.coerceIn(0.5f, 2.0f)
+
+            config.scale = ((scale + change) * 10f)
+                .roundToInt()
+                .coerceIn(5, 20) / 10f
+
+            selectedHudId = BUILTIN_HUD_ID
+            ConfigManager.save()
+
+            return true
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
     }
 
     override fun mouseReleased(event: MouseButtonEvent): Boolean {
         if (event.button() == 0 && dragging) {
             dragging = false
+            draggingHudId = null
             ConfigManager.save()
             return true
         }
@@ -169,6 +287,7 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
 
     override fun onClose() {
         dragging = false
+        draggingHudId = null
         ConfigManager.save()
         FebModHud.editorOpen = false
         super.onClose()
@@ -177,5 +296,9 @@ class HudEditorScreen : Screen(Component.literal("FebMod HUD Editor")) {
     override fun removed() {
         FebModHud.editorOpen = false
         super.removed()
+    }
+
+    companion object {
+        private const val BUILTIN_HUD_ID = "__febmod_builtin__"
     }
 }
