@@ -22,11 +22,19 @@ object ConfigManager {
         var scale: Float = 1.0f
     )
 
+    data class AddonHudConfig(
+        var enabled: Boolean = true,
+        var x: Int = 10,
+        var y: Int = 10,
+        var scale: Float = 1.0f
+    )
+
     data class Config(
         var discordRpc: Boolean = true,
         var theme: String = "WINTER",
         var hud: HudConfig = HudConfig(),
-        var customTitleScreen: Boolean = false
+        var customTitleScreen: Boolean = false,
+        var addonHuds: MutableMap<String, AddonHudConfig> = mutableMapOf()
     )
 
     var current = Config()
@@ -51,6 +59,13 @@ object ConfigManager {
                 .takeIf { it.isFinite() && it > 0f }
                 ?.coerceIn(0.5f, 2.0f)
                 ?: 1.0f
+
+            current.addonHuds.values.forEach { config ->
+                config.scale = config.scale
+                    .takeIf { it.isFinite() && it > 0f }
+                    ?.coerceIn(0.5f, 2.0f)
+                    ?: 1.0f
+            }
         }
     }
 }

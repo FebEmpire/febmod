@@ -15,7 +15,7 @@ object FebModHud {
 
     fun register() {
         HudManager.registerDefaults()
-
+        AddonHudRenderer.register()
         HudElementRegistry.addLast(HUD_ID) { graphics, _ ->
             render(graphics)
         }

@@ -5,8 +5,9 @@ import com.feb.mod.api.command.CommandApi
 import com.feb.mod.api.event.Event
 import com.feb.mod.api.event.EventBus
 import com.feb.mod.api.input.KeybindApi
-import com.feb.mod.manager.AddonConfigManager
 import com.feb.mod.api.gui.GuiApi
+import com.feb.mod.api.ui.HudAPI
+import com.feb.mod.manager.AddonConfigManager
 
 class AddonContext(val id: String) {
 
@@ -14,6 +15,7 @@ class AddonContext(val id: String) {
     val chat = ChatApi(id)
     val commands = CommandApi(id)
     val gui = GuiApi(id)
+    val hud = HudAPI(id)
 
     fun <T : Any> config(
         default: T,
@@ -30,6 +32,7 @@ class AddonContext(val id: String) {
         CommandApi.clear(id)
         EventBus.unregister(id)
         KeybindApi.clear(id)
+        hud.cleanup()
     }
 }
 
