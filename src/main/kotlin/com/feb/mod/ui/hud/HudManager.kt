@@ -1,6 +1,7 @@
 package com.feb.mod.ui.hud
 
 import com.feb.mod.ui.hud.entries.BtcEntry
+import com.feb.mod.ui.hud.entries.CpuEntry
 import com.feb.mod.ui.hud.entries.EthEntry
 import com.feb.mod.ui.hud.entries.FpsEntry
 import com.feb.mod.ui.hud.entries.LtcEntry
@@ -20,6 +21,7 @@ object HudManager {
         register(SolEntry)
         register(EthEntry)
         register(BtcEntry)
+        register(CpuEntry)
     }
 
     fun getEntries(): List<HudEntry> {

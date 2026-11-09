@@ -38,6 +38,8 @@ dependencies {
 	implementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
 	implementation("net.fabricmc:fabric-language-kotlin:$fabric_kotlin_version")
 
+	implementation("com.github.oshi:oshi-core:6.9.0")
+
 	implementation("meteordevelopment:discord-ipc:1.1")
 	include("meteordevelopment:discord-ipc:1.1")
 }

@@ -1,10 +1,8 @@
 package com.feb.mod.api.provider
 
-import com.feb.mod.api.provider.crypto.BTCProvider
-import com.feb.mod.api.provider.crypto.ETHProvider
-import com.feb.mod.api.provider.crypto.LTCProvider
-import com.feb.mod.api.provider.crypto.SOLProvider
-import com.feb.mod.api.provider.minecraft.FPSProvider
+import com.feb.mod.api.provider.system.CpuTemperatureProvider
+import com.feb.mod.api.provider.crypto.*
+import com.feb.mod.api.provider.minecraft.*
 
 object ProviderRegister {
     fun registerAll() {
@@ -13,5 +11,6 @@ object ProviderRegister {
         ProviderManager.register(BTCProvider)
         ProviderManager.register(ETHProvider)
         ProviderManager.register(SOLProvider)
+        ProviderManager.register(CpuTemperatureProvider)
     }
 }

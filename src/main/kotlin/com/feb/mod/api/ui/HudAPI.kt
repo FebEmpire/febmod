@@ -1,6 +1,6 @@
 package com.feb.mod.api.ui
 
-import com.feb.mod.ui.hud.AddonHudEditorScreen
+import com.feb.mod.ui.hud.HudEditorScreen
 import com.feb.mod.ui.hud.AddonHudManager
 import com.feb.mod.ui.hud.HudBuilder
 import net.minecraft.client.Minecraft
@@ -32,7 +32,7 @@ class HudAPI(private val ownerId: String) {
     fun openEditor() {
         Minecraft.getInstance().execute {
             Minecraft.getInstance().gui.setScreen(
-                AddonHudEditorScreen(ownerId)
+                HudEditorScreen()
             )
         }
     }

@@ -12,6 +12,7 @@ import com.feb.mod.manager.AddonManager
 import com.feb.mod.manager.FebModManager
 import com.feb.mod.ui.hud.FebModHud
 import com.feb.mod.feature.Feature
+import com.feb.mod.internal.sound.SoundDirectory
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
@@ -32,12 +33,13 @@ object Febmod : ModInitializer {
         ProviderRegister.registerAll()
         Feature.registerAll()
         GuiTracker.initialize()
+        SoundDirectory.initialize()
 
         LevelRenderEvents.END_MAIN.register {
             EventBus.post(RenderFrameEvent())
         }
 
-        ClientTickEvents.END_CLIENT_TICK.register {
+        ClientTickEvents.END_CLIENT_TICK.register { client ->
             EventBus.post(GameTickEvent())
         }
 
